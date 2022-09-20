@@ -12,3 +12,7 @@ Thus, the minimum such sum must lie in the interval [11, 26].
 
 In this repository, we want to determine whether an example of a better pairing can be found between a knot of 
 crossing number 16, 17, 18, or 19 and a corresponding knot of crossing number 6, 7, 8 or 9 (respectively).
+
+## Procedure
+1. Group the low and higher crossing knots by the Alexander polynomial.
+2. Decrease the group size further by using further obstructions P of the kind:  K(0,1) = K'(0,1) => P(K)=P(K').
