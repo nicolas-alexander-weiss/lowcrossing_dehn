@@ -19,4 +19,5 @@ crossing number 16, 17, 18, or 19 and a corresponding knot of crossing number 6,
 1. Group the low and higher crossing knots by the Alexander polynomial.
 2. Decrease the group size further by using further obstructions P of the kind:  K(0,1) = K'(0,1) => P(K)=P(K').
 
-COMMENT: The knot K5a1 does not need to be considered.
+## COMMENTs:
+The knot 5_2=K5a1 has 0 as a characterizing slope and thus does not need to be considered. So I guess you can remove that knot from your list.
