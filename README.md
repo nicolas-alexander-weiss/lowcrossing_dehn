@@ -20,4 +20,5 @@ crossing number 16, 17, 18, or 19 and a corresponding knot of crossing number 6,
 2. Decrease the group size further by using further obstructions P of the kind:  K(0,1) = K'(0,1) => P(K)=P(K').
 
 ## COMMENTs:
-The knot 5_2=K5a1 has 0 as a characterizing slope and thus does not need to be considered. So I guess you can remove that knot from your list.
+1. The knot 5_2=K5a1 has 0 as a characterizing slope and thus does not need to be considered. So I guess you can remove that knot from your list.
+2. I started a careful computation of the census knots. I think we should be able to rather quickly completely classify all census knots with the same 0-surgeries. And this computations might serve as a blueprint for what we want to do with the low-crossing knots. I will upload that tomorrow or Thursday. But the main computational time I still expect in the computations of the Alexander polynomials.
