@@ -12,6 +12,7 @@
 
 """
 
+from tokenize import group
 import snappy
 from census_csv_tools import *
 
@@ -33,17 +34,30 @@ def create_low_crossing_groups():
         if not alex_dict_str in groups.keys():
             groups[alex_dict_str] = []
         
-        groups[alex_dict_str].append({"knot":name, "crossings":len(k.link().crossings), "alexander_polynomial":alex_dict_str})
+        groups[alex_dict_str].append({"knot":name, "crossings":len(k.link().crossings)})
     
     print("Number of different Alexander polynomials: {}".format(len(groups.keys())))
+
+    print("Removing the 5_2 knot")
+
+    knot5_2 = snappy.Manifold("5_2")
+    dict_str5_2 = str(knot5_2.alexander_polynomial().dict())
+
+    groups.pop(dict_str5_2, None)
 
     #print(groups)
 
     print("\nNow creating the group files.")
 
+    distinction_list = []
     for k in groups.keys():
-        csv_path = "groups/" + groups[k][0]["knot"] + ".csv"
-        print_knots_to_csv(groups[k], columns=["knot", "crossings", "alexander_polynomial"], csv_file_path=csv_path)
+        representative = groups[k][0]["knot"]
+        csv_path = "groups/" + representative + ".csv"
+        distinction_list.append({"knot":representative, "alexander_polynomial":k})
+        print_knots_to_csv(groups[k], columns=["knot", "crossings"], csv_file_path=csv_path)
+
+    print("\nNow creating the distinction file.")
+    print_knots_to_csv(distinction_list, columns=["knot", "alexander_polynomial"], csv_file_path="distinction_list.csv")
 
     print("\nDone for now.")
 
@@ -52,4 +66,5 @@ def get_all_alexander_groups():
 
 
 if __name__ == "__main__":
+    # create_low_crossing_groups()
     pass

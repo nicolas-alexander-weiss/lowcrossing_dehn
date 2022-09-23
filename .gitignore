@@ -1,3 +1,7 @@
+# Ignore the burton knot data!
+burton_knots/
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
