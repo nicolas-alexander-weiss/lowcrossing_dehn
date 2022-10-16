@@ -146,7 +146,7 @@ def add_burton_knot_to_groups(name, alpha_dt_code, shm_name, shm_count_name, kno
     # load the list from shared memory (still comma-separated)
     dist_rows = shared_memory.ShareableList(name=shm_name)
 
-    # load the count from shared memory
+    # load the count from shared memory  (count[0] = processed knots, count[1] = matched knots)
     shm_count = shared_memory.SharedMemory(name=shm_count_name)
     count = np.ndarray((2,), dtype=np.int64, buffer=shm_count.buf)
 
@@ -179,8 +179,11 @@ def add_burton_knot_to_groups(name, alpha_dt_code, shm_name, shm_count_name, kno
 
         if k_crossings <= 25 - crossings and k_poly_dict == alex_poly_dict:
             path = "groups/" +  k_name + ".csv"
-            print("Adding {} with poly {} to {} with poly {}".format(name, alex_poly_dict, k_name, k_poly_dict))
+            # print("Adding {} with poly {} to {} with poly {}".format(name, alex_poly_dict, k_name, k_poly_dict))
+            print("Adding {} with poly {} to {}".format(name, alex_poly_dict, k_name))
             add_to_list(path, {"knot":name, "crossings":len(link.crossings)})
+            
+            count[1] += 1
             break
 
     # close the shared memory
@@ -190,7 +193,7 @@ def add_burton_knot_to_groups(name, alpha_dt_code, shm_name, shm_count_name, kno
     # flush
     sys.stdout.flush()
 
-def process_burton_list(csv_file_path, info_count, knot_info_count, shm_count_name, max_workers, info_name):
+def process_burton_list(csv_file_path, info_count, knot_info_count, max_workers, info_name):
     """ Given the length of the files, the knot lists will not be turned into a 
     list of dicts (would be too much overhead), but will be processed with the standard
     csv utilities.
@@ -200,13 +203,22 @@ def process_burton_list(csv_file_path, info_count, knot_info_count, shm_count_na
     """
     start_time = datetime.today().now()
     
-    print("Starting the processing of {} at {}.".format(csv_file_path, start_time))
+    print("\nStarting the processing of {} at {}.\n".format(csv_file_path, start_time))
 
     # load the comma-separated distinction list into shared memory.
     distinction_rows = sorted(get_distinction_rows())
 
     shm_list = shared_memory.ShareableList(distinction_rows)
     shm_name = shm_list.shm.name
+
+    # A general count of processed knots in shared memory:  
+    # This is more messy than necessary!
+    # TODO: Clean up!!!
+    a = np.array([0,0])
+    shm_count = shared_memory.SharedMemory(create=True, size=a.nbytes)
+    shm_count_name = shm_count.name
+    count = np.ndarray(a.shape, dtype=a.dtype, buffer=shm_count.buf)
+    count[:] = a[:]
 
     # callback function for the multiprocessing.
     def insertion_done(future): # call back
@@ -234,7 +246,7 @@ def process_burton_list(csv_file_path, info_count, knot_info_count, shm_count_na
 
                 # print(row)
                 
-                if idx % info_count == 0:
+                if idx % info_count == 0 and info_count != -1:
                     print("[{}]: Read-in {} lines.".format(info_name, idx))
                     sys.stdout.flush()
 
@@ -248,16 +260,20 @@ def process_burton_list(csv_file_path, info_count, knot_info_count, shm_count_na
                 # add the process.
                 future = pool.schedule(add_burton_knot_to_groups, args=(name, dt_code, shm_name, shm_count_name, knot_info_count))
                 future.add_done_callback(insertion_done)
-    
+
+    # report:
+    end_time = datetime.today().now()
+    print("\nConclude the sorting-in of the knots in {}.".format(csv_file_path))
+    print("For {} out of {} knots there is a matching lowcrossing knot.".format(count[1], line_count(csv_file_path)-1))
+    print("Finished after: {}s\n".format(end_time - start_time))
+    sys.stdout.flush()
+
     # close the shared memory and release memory.
     shm_list.shm.close()
     shm_list.shm.unlink()
 
-    # report:
-    end_time = datetime.today().now()
-    print("Conclude the sorting-in of the knots in {}.".format(csv_file_path))
-    print("Finished after: {}s\n".format(end_time - start_time))
-    sys.stdout.flush()
+    shm_count.close()
+    shm_count.unlink()
 
 #################################
 # Preprocessing
@@ -299,16 +315,6 @@ def process_the_burton_lists_in_parallel(num_chunks, max_workers, info_count, kn
     For the large knot lists, we will split them up 
     into <num_chunks> chunks and process them in parallel.
     """
-
-    # A general count of processed knots in shared memory:  
-    # This is more messy than necessary!
-    # TODO: Clean up!!!
-    a = np.array([0,0])
-    shm_count = shared_memory.SharedMemory(create=True, size=a.nbytes)
-    shm_count_name = shm_count.name
-    count = np.ndarray(a.shape, dtype=a.dtype, buffer=shm_count.buf)
-    count[:] = a[:]
-
     # callback function for catching exceptions.
     def processing_done(future): # call back
         try:
@@ -320,25 +326,21 @@ def process_the_burton_lists_in_parallel(num_chunks, max_workers, info_count, kn
     for filename in knot_lists:
         burton_file = "../burton_knots/" + filename
 
-        if filename in large_lists:
-            # split the large file
-            split_file(burton_file, num_chunks=num_chunks)
+        # if filename in large_lists:
+        #     # split the large file
+        #     split_file(burton_file, num_chunks=num_chunks)
 
-            # create a pool where each process considers one of the chunks!
-            with ProcessPool(max_workers=num_chunks) as pool:
-                for chunk_idx in range(1, num_chunks + 1):
-                    path = burton_file + "{:02d}".format(chunk_idx)
-                    future = pool.schedule(process_burton_list, args=(path, info_count, knot_info_count, shm_count_name, max_workers // num_chunks, filename + "{:02d}".format(chunk_idx)))
-                    future.add_done_callback(processing_done)
+        #     # create a pool where each process considers one of the chunks!
+        #     with ProcessPool(max_workers=num_chunks) as pool:
+        #         for chunk_idx in range(1, num_chunks + 1):
+        #             path = burton_file + "{:02d}".format(chunk_idx)
+        #             future = pool.schedule(process_burton_list, args=(path, info_count, knot_info_count, max_workers // num_chunks, filename + "{:02d}".format(chunk_idx)))
+        #             future.add_done_callback(processing_done)
 
-            # delete the splits
-            delete_splits(burton_file, num_chunks=num_chunks)
-        else:
-            process_burton_list(burton_file, info_count, knot_info_count, shm_count_name, max_workers=max_workers, info_name=filename)
-
-    shm_count.close()
-    shm_count.unlink()
-
+        #     # delete the splits
+        #     delete_splits(burton_file, num_chunks=num_chunks)
+        # else:
+        process_burton_list(burton_file, info_count, knot_info_count, max_workers=max_workers, info_name=filename)
 
 
 #################################
@@ -347,9 +349,9 @@ def process_the_burton_lists_in_parallel(num_chunks, max_workers, info_count, kn
 
 knot_lists = [
     "16n-satellite.csv",
-    "16n-torus.csv",
-    "16a-hyp.csv",
-    "16n-hyp.csv",
+#    "16n-torus.csv",
+#    "16a-hyp.csv",
+#    "16n-hyp.csv",
 
 #    "17a-torus.csv",
 #    "17n-satellite.csv",
@@ -390,4 +392,4 @@ large_lists_old = [
 if __name__ == "__main__":
     create_low_crossing_groups()
 
-    process_the_burton_lists_in_parallel(1, 16, 100000, 1000)
+    process_the_burton_lists_in_parallel(1, 16, -1, 1000)
