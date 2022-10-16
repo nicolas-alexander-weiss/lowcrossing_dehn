@@ -15,7 +15,6 @@
 import ast
 
 from datetime import datetime
-from distutils import dist
 
 from pebble import ProcessPool
 from concurrent.futures import TimeoutError
@@ -87,6 +86,7 @@ def create_low_crossing_groups():
     print_knots_to_csv(distinction_list, columns=["knot", "alexander_polynomial"], csv_file_path="distinction_list.csv")
 
     print("\nDone for now.")
+    sys.stdout.flush()
 
 def get_distinction_list():
     return load_knots_from_csv("distinction_list.csv", columns=["knot", "alexander_polynomial"])
@@ -154,7 +154,8 @@ def add_burton_knot_to_groups(name, alpha_dt_code, shm_name, shm_count_name, kno
 
     if count[0] % knot_info_count == 0:
         print("Currently on knot {}".format(count[0]))
-
+    sys.stdout.flush()
+    
     # create the link and compute the alexander polynomial
     link = snappy.Link(numerical_dt(alpha_dt_code))
     alex_poly = link.alexander_polynomial()
@@ -185,7 +186,9 @@ def add_burton_knot_to_groups(name, alpha_dt_code, shm_name, shm_count_name, kno
     # close the shared memory
     dist_rows.shm.close()
     shm_count.close()
-
+    
+    # flush
+    sys.stdout.flush()
 
 def process_burton_list(csv_file_path, info_count, knot_info_count, shm_count_name, max_workers, info_name):
     """ Given the length of the files, the knot lists will not be turned into a 
@@ -232,7 +235,8 @@ def process_burton_list(csv_file_path, info_count, knot_info_count, shm_count_na
                 # print(row)
                 
                 if idx % info_count == 0:
-                    print("[{}]: Iterated over {} lines.".format(info_name, idx))
+                    print("[{}]: Read-in {} lines.".format(info_name, idx))
+                    sys.stdout.flush()
 
                 # skip first line if it is header
                 if row[columns[0]] == columns[0]:
@@ -253,6 +257,7 @@ def process_burton_list(csv_file_path, info_count, knot_info_count, shm_count_na
     end_time = datetime.today().now()
     print("Conclude the sorting-in of the knots in {}.".format(csv_file_path))
     print("Finished after: {}s\n".format(end_time - start_time))
+    sys.stdout.flush()
 
 #################################
 # Preprocessing
@@ -344,7 +349,7 @@ knot_lists = [
     "16n-satellite.csv",
     "16n-torus.csv",
     "16a-hyp.csv",
-#    "16n-hyp.csv",
+    "16n-hyp.csv",
 
 #    "17a-torus.csv",
 #    "17n-satellite.csv",
@@ -355,14 +360,17 @@ knot_lists = [
 #    "18a-hyp.csv",
 #    "18n-hyp.csv",
 
-    "19n-satellite.csv",
+#    "19n-satellite.csv",
 #    "19a-torus.csv",
 #    "19a-hyp.csv",
 #    "19n-hyp_1.csv",
 #    "19n-hyp_2.csv"
 ]
 
-large_lists = [
+# No need to process the lists in parallel!
+large_lists = []
+
+large_lists_old = [
     "16a-hyp.csv",
     "16n-hyp.csv",
 
@@ -382,4 +390,4 @@ large_lists = [
 if __name__ == "__main__":
     create_low_crossing_groups()
 
-    process_the_burton_lists_in_parallel(1, 4, 10000, 100)
+    process_the_burton_lists_in_parallel(1, 16, 100000, 1000)
