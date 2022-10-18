@@ -220,6 +220,9 @@ def process_burton_list(csv_file_path, info_count, knot_info_count, max_workers,
     count = np.ndarray(a.shape, dtype=a.dtype, buffer=shm_count.buf)
     count[:] = a[:]
 
+    if csv_file_path == "../burton_knots/19a-hyp.csv":
+        count[0] = 39850000
+
     # callback function for the multiprocessing.
     def insertion_done(future): # call back
         try:
@@ -243,6 +246,10 @@ def process_burton_list(csv_file_path, info_count, knot_info_count, max_workers,
         with ProcessPool(max_workers=max_workers) as pool:
 
             for idx, row in enumerate(reader):
+                if idx < 39850000:
+                    continue
+                if idx = 39850000:
+                    print("Now continueing at 39850000th row again.")
 
                 # print(row)
                 
@@ -348,7 +355,7 @@ def process_the_burton_lists_in_parallel(num_chunks, max_workers, info_count, kn
 #
 
 knot_lists = [
-    "16n-satellite.csv",
+#    "16n-satellite.csv",
 #    "16n-torus.csv",
 #    "16a-hyp.csv",
 #    "16n-hyp.csv",
@@ -364,9 +371,10 @@ knot_lists = [
 
 #    "19n-satellite.csv",
 #    "19a-torus.csv",
-#    "19a-hyp.csv",
-#    "19n-hyp_1.csv",
-#    "19n-hyp_2.csv"
+
+# Only these remain. Last time failure at 39850000
+    "19a-hyp.csv",
+    "19n-hyp.csv"
 ]
 
 # No need to process the lists in parallel!
@@ -392,4 +400,4 @@ large_lists_old = [
 if __name__ == "__main__":
     create_low_crossing_groups()
 
-    process_the_burton_lists_in_parallel(1, 16, -1, 1000)
+    process_the_burton_lists_in_parallel(1, 16, -1, 50000)
