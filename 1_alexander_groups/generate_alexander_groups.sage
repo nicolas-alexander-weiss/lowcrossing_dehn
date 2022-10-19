@@ -246,10 +246,14 @@ def process_burton_list(csv_file_path, info_count, knot_info_count, max_workers,
         with ProcessPool(max_workers=max_workers) as pool:
 
             for idx, row in enumerate(reader):
-                if idx < 39850000:
+                if csv_file_path == "../burton_knots/19a-hyp.csv" and idx < 39850000:
+                    if idx % 50000 == 0:
+                        print("passed by idx {}".format(idx))
+                        sys.stdout.flush()
                     continue
-                if idx = 39850000:
+                if csv_file_path == "../burton_knots/19a-hyp.csv" and idx == 39850000:
                     print("Now continueing at 39850000th row again.")
+                    sys.stdout.flush()
 
                 # print(row)
                 
@@ -398,6 +402,6 @@ large_lists_old = [
 # That way one can process the lists quicker as well.
 
 if __name__ == "__main__":
-    create_low_crossing_groups()
+    # create_low_crossing_groups()
 
     process_the_burton_lists_in_parallel(1, 16, -1, 50000)
