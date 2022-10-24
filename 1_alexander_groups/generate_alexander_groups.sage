@@ -15,6 +15,7 @@
 import ast
 
 from datetime import datetime
+from time import sleep
 
 from pebble import ProcessPool
 from concurrent.futures import TimeoutError
@@ -193,7 +194,7 @@ def add_burton_knot_to_groups(name, alpha_dt_code, shm_name, shm_count_name, kno
     # flush
     sys.stdout.flush()
 
-def process_burton_list(csv_file_path, info_count, knot_info_count, max_workers, info_name, continue_at=None):
+def process_burton_list(csv_file_path, info_count, knot_info_count, max_workers, info_name, continue_at=None, sleep_time=0.001):
     """ Given the length of the files, the knot lists will not be turned into a 
     list of dicts (would be too much overhead), but will be processed with the standard
     csv utilities.
@@ -306,6 +307,9 @@ def process_burton_list(csv_file_path, info_count, knot_info_count, max_workers,
                 future = pool.schedule(add_burton_knot_to_groups, args=(name, dt_code, shm_name, shm_count_name, knot_info_count))
                 future.add_done_callback(insertion_done)
 
+                # sleep, to prevent memory overload:
+                sleep(sleep_time)
+
     # report:
     end_time = datetime.today().now()
     print("\nConclude the sorting-in of the knots in {}.".format(csv_file_path))
@@ -385,7 +389,7 @@ def process_the_burton_lists_in_parallel(num_chunks, max_workers, info_count, kn
         #     # delete the splits
         #     delete_splits(burton_file, num_chunks=num_chunks)
         # else:
-        process_burton_list(burton_file, info_count, knot_info_count, max_workers=max_workers, info_name=filename, continue_at = None)
+        process_burton_list(burton_file, info_count, knot_info_count, max_workers=max_workers, info_name=filename, continue_at = None, sleeptime=0.0288) # sleep time so that 1mio knots per 30min.
 
 
 #################################
