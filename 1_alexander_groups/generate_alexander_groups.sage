@@ -193,13 +193,19 @@ def add_burton_knot_to_groups(name, alpha_dt_code, shm_name, shm_count_name, kno
     # flush
     sys.stdout.flush()
 
-def process_burton_list(csv_file_path, info_count, knot_info_count, max_workers, info_name):
+def process_burton_list(csv_file_path, info_count, knot_info_count, max_workers, info_name, continue_at=None):
     """ Given the length of the files, the knot lists will not be turned into a 
     list of dicts (would be too much overhead), but will be processed with the standard
     csv utilities.
 
     Will print a note after <info_count> many knots have been looped over.
     Will print a note after <knot_info_count> many knots have been actually processed.
+
+    ---- Arguments -----
+
+    continue_at : either string -> knot_name, or int -> row_count
+
+
     """
     start_time = datetime.today().now()
     
@@ -220,8 +226,8 @@ def process_burton_list(csv_file_path, info_count, knot_info_count, max_workers,
     count = np.ndarray(a.shape, dtype=a.dtype, buffer=shm_count.buf)
     count[:] = a[:]
 
-    if csv_file_path == "../burton_knots/19a-hyp.csv":
-        count[0] = 39850000
+    if continue_at != None:
+        continuation_point_found = False
 
     # callback function for the multiprocessing.
     def insertion_done(future): # call back
@@ -246,14 +252,48 @@ def process_burton_list(csv_file_path, info_count, knot_info_count, max_workers,
         with ProcessPool(max_workers=max_workers) as pool:
 
             for idx, row in enumerate(reader):
-                if csv_file_path == "../burton_knots/19a-hyp.csv" and idx < 39850000:
+                # skip first line if it is header
+                if row[columns[0]] == columns[0]:
+                    continue
+
+                name = row["name"]
+                dt_code = row["dt_code"]
+
+                # IMPLEMENT CONTINUATION FUNCTION:
+                
+                if not continuation_point_found:
+                    if idx % 100000 == 0:
+                        print("Skipping lines until continuation: Current idx = {}.".format(idx))
+                    if type(continue_at) == int:
+                        # Hence it is a row count.
+                        if idx < continue_at:
+                            count[0] += 1 # processed knots.
+                            continue
+                        else:
+                            continuation_point_found = True
+                            print("Now continueing at idx {} with knot {}.".format(idx, name))
+                            sys.stdout.flush()
+
+                    elif type(continue_at) == str:
+                        # Hence it is a knot name.
+                        if name != continue_at:
+                            count[0] += 1
+                            continue
+                        else:
+                            continuation_point_found = True
+                            print("Now continueing at idx {} with knot {}.".format(idx, name))
+                            sys.stdout.flush()
+
+                """ if csv_file_path == "../burton_knots/19a-hyp.csv" and idx < 39850000:
                     if idx % 50000 == 0:
                         print("passed by idx {}".format(idx))
                         sys.stdout.flush()
                     continue
+
+
                 if csv_file_path == "../burton_knots/19a-hyp.csv" and idx == 39850000:
                     print("Now continueing at 39850000th row again.")
-                    sys.stdout.flush()
+                    sys.stdout.flush() """
 
                 # print(row)
                 
@@ -261,12 +301,6 @@ def process_burton_list(csv_file_path, info_count, knot_info_count, max_workers,
                     print("[{}]: Read-in {} lines.".format(info_name, idx))
                     sys.stdout.flush()
 
-                # skip first line if it is header
-                if row[columns[0]] == columns[0]:
-                    continue
-
-                name = row["name"]
-                dt_code = row["dt_code"]
 
                 # add the process.
                 future = pool.schedule(add_burton_knot_to_groups, args=(name, dt_code, shm_name, shm_count_name, knot_info_count))
@@ -351,7 +385,7 @@ def process_the_burton_lists_in_parallel(num_chunks, max_workers, info_count, kn
         #     # delete the splits
         #     delete_splits(burton_file, num_chunks=num_chunks)
         # else:
-        process_burton_list(burton_file, info_count, knot_info_count, max_workers=max_workers, info_name=filename)
+        process_burton_list(burton_file, info_count, knot_info_count, max_workers=max_workers, info_name=filename, continue_at = None)
 
 
 #################################
@@ -404,4 +438,7 @@ large_lists_old = [
 if __name__ == "__main__":
     # create_low_crossing_groups()
 
-    process_the_burton_lists_in_parallel(1, 16, -1, 50000)
+    filename = "19n-hyp.csv"
+    burton_file = "../burton_knots/" + filename
+
+    process_burton_list(burton_file, info_count=-1, knot_info_count=50000, max_workers=16, info_name=filename, continue_at = "19nh_001633088")
