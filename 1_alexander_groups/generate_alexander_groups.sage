@@ -16,6 +16,7 @@ import ast
 
 from datetime import datetime
 from genericpath import isfile
+import multiprocessing
 from time import sleep
 
 from pebble import ProcessPool
@@ -441,7 +442,7 @@ BURTON_KNOTS_DIR = "../burton_knots/"
 PROCESSED_DIR = "processed/"
 
 MAX_WORKERS = 16
-TIME_OUT_PER_KNOT = float(0.001)
+TIME_OUT_PER_KNOT = float(0.0015)
 
 NUM_PROCESSED_INFO = 50000
 NUM_READ_INFO = 100000
@@ -506,12 +507,13 @@ def get_processed_sets(knot_list):
     return processed_no_group, processed_with_group
 
 
-def process_knot(knot_list, knot_name, alpha_dt_code, shm_count_name, shm_list_name):
+def process_knot(knot_list, knot_name, alpha_dt_code, shm_list_name, idx, lock):
+
+    if idx % NUM_PROCESSED_INFO == 0:
+        print("[{}]: Now processing knot {} with idx {}".format(knot_list, knot_name, idx))
+        sys.stdout.flush()
 
     # Load shared memory: Count and distinction list as rows
-    shm_count = shared_memory.SharedMemory(name=shm_count_name)
-    processed_count = np.ndarray((2,), dtype=np.int64, buffer=shm_count.buf)
-
     dist_rows = shared_memory.ShareableList(name=shm_list_name)
 
     #
@@ -542,26 +544,24 @@ def process_knot(knot_list, knot_name, alpha_dt_code, shm_count_name, shm_list_n
             sys.stdout.flush()
 
             processed_with_group_path = PROCESSED_DIR + knot_list + WITH_GROUP
+
+            lock.acquire()
             add_to_list(processed_with_group_path, columns=WITH_GROUP_COLUMNS, row={"name":knot_name, "crossings":len(link.crossings), "alexander_polynomial":alex_poly_dict, "matched_name":k_name})
-            
-            processed_count[1] += 1
+            lock.release()
+
             found_match = True
             break
     if not found_match:
         processed_no_group_path = PROCESSED_DIR + knot_list + NO_GROUP
+
+        lock.acquire() # make sure no other process writes the file
         add_to_list(processed_no_group_path, columns=NO_GROUP_COLUMNS, row={"name":knot_name})
+        lock.release()
     ###
     #
 
-    # increment count
-    processed_count[0] += 1
-    if processed_count[0] % NUM_PROCESSED_INFO == 0:
-        print("[{}] Processed {} knots.".format(knot_list, processed_count[0]))
-        sys.stdout.flush()
-
     # detach memory
     dist_rows.shm.close()
-    shm_count.close()
 
     pass
 
@@ -579,19 +579,15 @@ def process_knot_list(knot_list, already_processed_no_group, already_processed_w
     columns = STD_BURTON_COLUMNS
     delimiter = STD_DELIMITER
 
-    # Create shared memory for tracking count of processed knots
-    a = np.array([0,0]) # (processed, added)
-    shm_count = shared_memory.SharedMemory(create=True, size=a.nbytes)
-    shm_count_name = shm_count.name
-    processed_count = np.ndarray(a.shape, dtype=a.dtype, buffer=shm_count.buf)
-    processed_count[:] = a[:]
-
     # load the comma-separated distinction list into shared memory.
     distinction_rows = sorted(get_distinction_rows())
     shm_list = shared_memory.ShareableList(distinction_rows)
     shm_list_name = shm_list.shm.name
 
     #####################################
+
+    # multiprocessing lock for avoiding IO problems
+    lock = multiprocessing.Lock()
 
     # callback function for the multiprocessing.
     def insertion_done(future): # call back
@@ -629,7 +625,7 @@ def process_knot_list(knot_list, already_processed_no_group, already_processed_w
                     continue
                 
                 # add the process:
-                future = pool.schedule(process_knot, args=(knot_list, name, alpha_dt_code, shm_count_name, shm_list_name))
+                future = pool.schedule(process_knot, args=(knot_list, name, alpha_dt_code, shm_list_name, idx, lock))
                 future.add_done_callback(insertion_done)
 
                 # sleep time, should not per se sleep, but only sleep if too many open tasks.
@@ -639,13 +635,24 @@ def process_knot_list(knot_list, already_processed_no_group, already_processed_w
     # Print information:
     time_taken = datetime.today().now() - start_time
 
+    # get number of knots:
+    num_processed_no_group = line_count(PROCESSED_DIR + knot_list + NO_GROUP ) - 1
+    num_processed_with_group = line_count(PROCESSED_DIR + knot_list + WITH_GROUP) - 1
+    total_processed = num_processed_no_group + num_processed_with_group
+
+    num_already_no_group = len(already_processed_no_group)
+    num_already_with_group = len(already_processed_with_group)
+    total_already_processed = num_already_no_group + num_already_with_group
+
+    num_new_processed = total_processed - total_already_processed
+    num_new_added = num_processed_with_group - num_already_with_group
+    
+
     print("[{}]: Done with processing the list.".format(knot_list))
     print("[{}]: Time take: {}".format(knot_list, time_taken))
-    print("[{}]: Knots processed {} / added {}".format(knot_list, processed_count[0], processed_count[1]))
-
+    print("[{}]: Total knots processed {} / Total matched {}".format(knot_list, total_processed, num_processed_with_group))
+    print("[{}]: New processed {}/ new added {}".format(knot_list, num_new_processed, num_new_added))
     # Close & unlink the shared memory:
-    shm_count.close()
-    shm_count.unlink()
     shm_list.shm.close()
     shm_list.shm.unlink()
 
@@ -717,16 +724,15 @@ knot_lists = [
     "17a-hyp.csv",
     "17n-hyp.csv",
 
-#    "18n-satellite.csv",
-#    "18a-hyp.csv",
-#    "18n-hyp.csv",
+    "18n-satellite.csv",
+    "18a-hyp.csv",
+    "18n-hyp.csv",
 
-#    "19n-satellite.csv",
-#    "19a-torus.csv",
+    "19n-satellite.csv",
+    "19a-torus.csv",
 
-# Only these remain. Last time failure at 39850000
-#    "19a-hyp.csv",
-#    "19n-hyp.csv"
+    "19a-hyp.csv",
+    "19n-hyp.csv"
 ]
 
 # No need to process the lists in parallel!
