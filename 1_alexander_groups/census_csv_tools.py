@@ -75,6 +75,20 @@ def sorted_list_of_knots(knot_list):
     return sorted(knot_list, key=key_function)
 
 
+def load_first_column_as_set(csv_path, columns, delimiter):
+    """ Loads the csv_file and returns the first column as a set.
+    """
+    first_column_set = set({})
+    with open(csv_path, newline='') as file:
+        reader = csv.DictReader(file, delimiter=delimiter, fieldnames=columns, skipinitialspace=True)
+        for row in reader:
+            # skip first line if it is header
+            if row[columns[0]] == columns[0]:
+                continue
+            first_column_set.add(row[columns[0]])
+    
+    return first_column_set
+
 def load_knots_from_csv(csv_file_path, columns=[], delimiter=","):
     """
     columns: e.g. ["knot", "small_large"]  (the colums )
