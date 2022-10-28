@@ -21,7 +21,7 @@ from time import sleep
 
 from pebble import ProcessPool
 from concurrent.futures import TimeoutError
-from multiprocessing import ProcessError, shared_memory
+from multiprocessing import Lock, ProcessError, shared_memory
 
 import numpy as np
 
@@ -586,9 +586,6 @@ def process_knot_list(knot_list, already_processed_no_group, already_processed_w
 
     #####################################
 
-    # multiprocessing lock for avoiding IO problems
-    lock = multiprocessing.Lock()
-
     # callback function for the multiprocessing.
     def insertion_done(future): # call back
         try:
@@ -605,32 +602,35 @@ def process_knot_list(knot_list, already_processed_no_group, already_processed_w
     with open(knot_list_path, newline='') as file:
         reader = csv.DictReader(file, delimiter=delimiter, fieldnames=columns, skipinitialspace=True)
         
-        with ProcessPool(max_workers=MAX_WORKERS) as pool:
-            for idx, row in enumerate(reader):
-                # skip first line if it is header
-                if row[columns[0]] == columns[0]:
-                    continue
+        with multiprocessing.Manager() as manager:
+            lock = manager.Lock()
 
-                # Provide an info, each time threshold is reached.
-                if idx % NUM_READ_INFO == 0:
-                    print("[{}] Read {} lines.".format(knot_list, idx))
-                    sys.stdout.flush()
+            with ProcessPool(max_workers=MAX_WORKERS) as pool:
+                for idx, row in enumerate(reader):
+                    # skip first line if it is header
+                    if row[columns[0]] == columns[0]:
+                        continue
 
-                # Get details
-                name = row["name"]
-                alpha_dt_code = row["dt_code"]
+                    # Provide an info, each time threshold is reached.
+                    if idx % NUM_READ_INFO == 0:
+                        print("[{}] Read {} lines.".format(knot_list, idx))
+                        sys.stdout.flush()
 
-                # skip if has been processed already
-                if name in already_processed_no_group or name in already_processed_with_group:
-                    continue
-                
-                # add the process:
-                future = pool.schedule(process_knot, args=(knot_list, name, alpha_dt_code, shm_list_name, idx, lock))
-                future.add_done_callback(insertion_done)
+                    # Get details
+                    name = row["name"]
+                    alpha_dt_code = row["dt_code"]
 
-                # sleep time, should not per se sleep, but only sleep if too many open tasks.
-                # [TODO]: Implement this if things fail again. 
-                sleep(TIME_OUT_PER_KNOT)
+                    # skip if has been processed already
+                    if name in already_processed_no_group or name in already_processed_with_group:
+                        continue
+                    
+                    # add the process:
+                    future = pool.schedule(process_knot, args=(knot_list, name, alpha_dt_code, shm_list_name, idx, lock))
+                    future.add_done_callback(insertion_done)
+
+                    # sleep time, should not per se sleep, but only sleep if too many open tasks.
+                    # [TODO]: Implement this if things fail again. 
+                    sleep(TIME_OUT_PER_KNOT)
 
     # Print information:
     time_taken = datetime.today().now() - start_time
