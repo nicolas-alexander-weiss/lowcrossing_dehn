@@ -20,7 +20,7 @@ from time import sleep
 
 from pebble import ProcessPool
 from concurrent.futures import TimeoutError
-from multiprocessing import shared_memory
+from multiprocessing import ProcessError, shared_memory
 
 import numpy as np
 
@@ -441,7 +441,7 @@ BURTON_KNOTS_DIR = "../burton_knots/"
 PROCESSED_DIR = "processed/"
 
 MAX_WORKERS = 16
-TIME_OUT_PER_KNOT = 0.001
+TIME_OUT_PER_KNOT = float(0.001)
 
 NUM_PROCESSED_INFO = 50000
 NUM_READ_INFO = 100000
@@ -458,9 +458,12 @@ def create_processed_knots_files(knot_lists):
     print("---------------------------------------------")
     print("Create book-keeping files of processed knots.")
 
+    if not os.path.isdir(PROCESSED_DIR):
+        os.mkdir(PROCESSED_DIR)
+
     for list_name in knot_lists:
-        processed_no_group = "processed/" + list_name + NO_GROUP
-        processed_with_group = "processed/" + list_name + WITH_GROUP
+        processed_no_group = PROCESSED_DIR + list_name + NO_GROUP
+        processed_with_group = PROCESSED_DIR + list_name + WITH_GROUP
 
         if os.path.isfile(processed_no_group):
             print("The file {} already exists!".format(processed_no_group))
@@ -483,8 +486,8 @@ def get_processed_sets(knot_list):
         
         Returns: processed_no_group, processed_with_group
     """
-    processed_no_group_path = "processed/" + knot_list + NO_GROUP
-    processed_with_group_path = "processed/" + knot_list + WITH_GROUP
+    processed_no_group_path = PROCESSED_DIR + knot_list + NO_GROUP
+    processed_with_group_path = PROCESSED_DIR + knot_list + WITH_GROUP
 
     assert(os.path.isfile(processed_no_group_path))
     assert(os.path.isfile(processed_with_group_path))
@@ -555,7 +558,7 @@ def process_knot(knot_list, knot_name, alpha_dt_code, shm_count_name, shm_list_n
     if processed_count[0] % NUM_PROCESSED_INFO == 0:
         print("[{}] Processed {} knots.".format(knot_list, processed_count[0]))
         sys.stdout.flush()
-        
+
     # detach memory
     dist_rows.shm.close()
     shm_count.close()
@@ -625,10 +628,12 @@ def process_knot_list(knot_list, already_processed_no_group, already_processed_w
                 if name in already_processed_no_group or name in already_processed_with_group:
                     continue
                 
-                # process the knot:
-                process_knot(knot_list, name, alpha_dt_code, shm_count_name, shm_list_name)
+                # add the process:
+                future = pool.schedule(process_knot, args=(knot_list, name, alpha_dt_code, shm_count_name, shm_list_name))
+                future.add_done_callback(insertion_done)
 
-                # sleep time
+                # sleep time, should not per se sleep, but only sleep if too many open tasks.
+                # [TODO]: Implement this if things fail again. 
                 sleep(TIME_OUT_PER_KNOT)
 
     # Print information:
