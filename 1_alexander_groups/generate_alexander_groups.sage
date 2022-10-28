@@ -536,7 +536,8 @@ def process_knot(knot_list, knot_name, alpha_dt_code, shm_count_name, shm_list_n
 
         if k_crossings <= 25 - crossings and k_poly_dict == alex_poly_dict:
             print("[{}]: Found match for {} with knot:{}, poly: {}.".format(knot_list, knot_name, k_name, alex_poly_dict))
-            
+            sys.stdout.flush()
+
             processed_with_group_path = PROCESSED_DIR + knot_list + WITH_GROUP
             add_to_list(processed_with_group_path, columns=WITH_GROUP_COLUMNS, row={"name":knot_name, "crossings":len(link.crossings), "alexander_polynomial":alex_poly_dict, "matched_name":k_name})
             
@@ -553,7 +554,8 @@ def process_knot(knot_list, knot_name, alpha_dt_code, shm_count_name, shm_list_n
     processed_count[0] += 1
     if processed_count[0] % NUM_PROCESSED_INFO == 0:
         print("[{}] Processed {} knots.".format(knot_list, processed_count[0]))
-
+        sys.stdout.flush()
+        
     # detach memory
     dist_rows.shm.close()
     shm_count.close()
