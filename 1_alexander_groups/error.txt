@@ -1,0 +1,12 @@
+/usr/lib/python3/dist-packages/apport/report.py:13: DeprecationWarning: the imp module is deprecated in favour of importlib and slated for removal in Python 3.12; see the module's documentation for alternative uses
+  import fnmatch, glob, traceback, errno, sys, atexit, locale, imp, stat
+Traceback (most recent call last):
+  File "/home/weiss/Desktop/lowcrossing_dehn/1_alexander_groups/generate_alexander_groups.sage.py", line 765, in <module>
+    main(knot_lists)
+  File "/home/weiss/Desktop/lowcrossing_dehn/1_alexander_groups/generate_alexander_groups.sage.py", line 695, in main
+    process_knot_list(knot_list, processed_no_group, processed_with_group)
+  File "/home/weiss/Desktop/lowcrossing_dehn/1_alexander_groups/generate_alexander_groups.sage.py", line 607, in process_knot_list
+    with open(knot_list_path, newline='') as file:
+FileNotFoundError: [Errno 2] No such file or directory: '../burton_knots/19n-hyp.csv'
+/usr/lib/python3.10/multiprocessing/resource_tracker.py:224: UserWarning: resource_tracker: There appear to be 1 leaked shared_memory objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '
