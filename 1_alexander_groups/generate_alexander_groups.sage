@@ -730,7 +730,7 @@ def add_knots_to_groups(knot_list):
         columns = ALEX_GROUP_COLUMNS
         add_to_list(group_path, row=row, columns=columns)
 
-    print("[{}]: Sorted in {} knots into their corresponding files.")
+    print("[{}]: Sorted in {} knots into their corresponding files.".format(knot_list, len(knots_with_group)))
     sys.stdout.flush()
 
 
