@@ -507,7 +507,7 @@ def get_processed_sets(knot_list):
     return processed_no_group, processed_with_group
 
 
-def process_knot(knot_list, knot_name, alpha_dt_code, shm_list_name, idx, lock):
+def process_knot(knot_list, knot_name, alpha_dt_code, shm_list_name, idx, lock1, lock2):
 
     if idx % NUM_PROCESSED_INFO == 0:
         print("[{}]: Now processing knot {} with idx {}".format(knot_list, knot_name, idx))
@@ -545,18 +545,18 @@ def process_knot(knot_list, knot_name, alpha_dt_code, shm_list_name, idx, lock):
 
             processed_with_group_path = PROCESSED_DIR + knot_list + WITH_GROUP
 
-            lock.acquire()
+            lock1.acquire()
             add_to_list(processed_with_group_path, columns=WITH_GROUP_COLUMNS, row={"name":knot_name, "crossings":len(link.crossings), "alexander_polynomial":alex_poly_dict, "matched_name":k_name})
-            lock.release()
+            lock1.release()
 
             found_match = True
             break
     if not found_match:
         processed_no_group_path = PROCESSED_DIR + knot_list + NO_GROUP
 
-        lock.acquire() # make sure no other process writes the file
+        lock2.acquire() # make sure no other process writes the file (But have two different locks for the different files, so we can improve speed.)
         add_to_list(processed_no_group_path, columns=NO_GROUP_COLUMNS, row={"name":knot_name})
-        lock.release()
+        lock2.release()
     ###
     #
 
@@ -603,7 +603,8 @@ def process_knot_list(knot_list, already_processed_no_group, already_processed_w
         reader = csv.DictReader(file, delimiter=delimiter, fieldnames=columns, skipinitialspace=True)
         
         with multiprocessing.Manager() as manager:
-            lock = manager.Lock()
+            lock1 = manager.Lock()
+            lock2 = manager.Lock()
 
             with ProcessPool(max_workers=MAX_WORKERS) as pool:
                 for idx, row in enumerate(reader):
@@ -625,7 +626,7 @@ def process_knot_list(knot_list, already_processed_no_group, already_processed_w
                         continue
                     
                     # add the process:
-                    future = pool.schedule(process_knot, args=(knot_list, name, alpha_dt_code, shm_list_name, idx, lock))
+                    future = pool.schedule(process_knot, args=(knot_list, name, alpha_dt_code, shm_list_name, idx, lock1, lock2))
                     future.add_done_callback(insertion_done)
 
                     # sleep time, should not per se sleep, but only sleep if too many open tasks.
@@ -635,7 +636,7 @@ def process_knot_list(knot_list, already_processed_no_group, already_processed_w
     # Print information:
     time_taken = datetime.today().now() - start_time
 
-    # get number of knots:
+    # get number of knots: (assumes that each of the files has a header line!)
     num_processed_no_group = line_count(PROCESSED_DIR + knot_list + NO_GROUP ) - 1
     num_processed_with_group = line_count(PROCESSED_DIR + knot_list + WITH_GROUP) - 1
     total_processed = num_processed_no_group + num_processed_with_group
@@ -714,25 +715,31 @@ def main(knot_lists):
 #
 
 knot_lists = [
-    "16n-satellite.csv",
-    "16n-torus.csv",
-    "16a-hyp.csv",
-    "16n-hyp.csv",
+#    "16n-satellite.csv",
+#    "16n-torus.csv",
+#    "16a-hyp.csv",
+#    "16n-hyp.csv",
 
-    "17a-torus.csv",
-    "17n-satellite.csv",
-    "17a-hyp.csv",
-    "17n-hyp.csv",
+#    "17a-torus.csv",
+#    "17n-satellite.csv",
+#    "17a-hyp.csv",
+#    "17n-hyp.csv",
 
-    "18n-satellite.csv",
-    "18a-hyp.csv",
-    "18n-hyp.csv",
+#    "18n-satellite.csv",
+#    "18a-hyp.csv",
+#    "18n-hyp.csv",
 
-    "19n-satellite.csv",
-    "19a-torus.csv",
+#    "19n-satellite.csv",
+#    "19a-torus.csv",
 
-    "19a-hyp.csv",
-    "19n-hyp.csv"
+#    "19a-hyp.csv",
+
+    "19n-hyp.csv01", # Split into 6 files, to avoid memory overflow with too many tasks in the pool.
+    "19n-hyp.csv02",
+    "19n-hyp.csv03",
+    "19n-hyp.csv04",
+    "19n-hyp.csv05",
+    "19n-hyp.csv06"
 ]
 
 # No need to process the lists in parallel!
