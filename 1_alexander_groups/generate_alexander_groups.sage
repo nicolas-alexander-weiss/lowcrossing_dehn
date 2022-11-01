@@ -15,13 +15,12 @@
 import ast
 
 from datetime import datetime
-from genericpath import isfile
 import multiprocessing
 from time import sleep
 
 from pebble import ProcessPool
 from concurrent.futures import TimeoutError
-from multiprocessing import Lock, ProcessError, shared_memory
+from multiprocessing import shared_memory
 
 import numpy as np
 
@@ -67,7 +66,7 @@ def create_low_crossing_groups():
         if not found:
             groups[key] = []
         
-        groups[key].append({"knot":name, "crossings":len(k.link().crossings)})
+        groups[key].append({"name":name, "crossings":len(k.link().crossings)})
     
     print("Number of different Alexander polynomials: {}".format(len(groups.keys())))
 
@@ -84,33 +83,33 @@ def create_low_crossing_groups():
 
     distinction_list = []
     for k in groups.keys():
-        representative = groups[k][0]["knot"]
+        representative = groups[k][0]["name"]
         csv_path = "groups/" + representative + ".csv"
-        distinction_list.append({"knot":representative, "alexander_polynomial":k})
-        print_knots_to_csv(groups[k], columns=["knot", "crossings"], csv_file_path=csv_path)
+        distinction_list.append({"name":representative, "alexander_polynomial":k})
+        print_knots_to_csv(groups[k], columns=["name", "crossings"], csv_file_path=csv_path)
 
     print("\nNow creating the distinction file.")
-    print_knots_to_csv(distinction_list, columns=["knot", "alexander_polynomial"], csv_file_path="distinction_list.csv")
+    print_knots_to_csv(distinction_list, columns=["name", "alexander_polynomial"], csv_file_path="distinction_list.csv")
 
     print("\nDone for now.")
     print("---------------------------------------------\n")
     sys.stdout.flush()
 
 def get_distinction_list():
-    return load_knots_from_csv("distinction_list.csv", columns=["knot", "alexander_polynomial"])
+    return load_knots_from_csv("distinction_list.csv", columns=["name", "alexander_polynomial"])
 
 def get_distinction_rows():
     """ Returns almost the same as the above, but keeps the rows in a comma separated fashion.
     # Remark: This is slightly redundant, we could have also implemented this more directly.
     """
     d_list = get_distinction_list()
-    return [k["knot"] + "," + k["alexander_polynomial"] for k in d_list]
+    return [k["name"] + "," + k["alexander_polynomial"] for k in d_list]
 
 
 ##################################################
 ### Sort in the knots from Burton's lists
 
-def add_to_list(csv_file_path, row, columns=["knot", "crossings"], delimiter=","):
+def add_to_list(csv_file_path, row, columns=["name", "crossings"], delimiter=","):
     """ Appends an item to the group file.
     """
 
@@ -189,7 +188,7 @@ def add_burton_knot_to_groups(name, alpha_dt_code, shm_name, shm_count_name, kno
             path = "groups/" +  k_name + ".csv"
             # print("Adding {} with poly {} to {} with poly {}".format(name, alex_poly_dict, k_name, k_poly_dict))
             print("Adding {} with poly {} to {}".format(name, alex_poly_dict, k_name))
-            add_to_list(path, {"knot":name, "crossings":len(link.crossings)})
+            add_to_list(path, {"name":name, "crossings":len(link.crossings)})
             
             count[1] += 1
             break
@@ -438,7 +437,10 @@ NO_GROUP_COLUMNS = ["name"]
 WITH_GROUP = ".with_group.csv"
 WITH_GROUP_COLUMNS = ["name", "crossings", "alexander_polynomial", "matched_name"]
 
+ALEX_GROUP_COLUMNS = ["name", "crossings"]
+
 BURTON_KNOTS_DIR = "../burton_knots/"
+ALEXANDER_GROUPS_DIR = "groups/"
 PROCESSED_DIR = "processed/"
 
 MAX_WORKERS = 16
@@ -657,14 +659,93 @@ def process_knot_list(knot_list, already_processed_no_group, already_processed_w
     shm_list.shm.close()
     shm_list.shm.unlink()
 
-def verify_processing(knot_list):
-    pass
+def verify_processing(knot_list, info_count=1000000):
+    """ Goes through the list and
+    makes sure that each and every knot has been processed.
+    """
+    # load the info files as sets:
+    already_processed_no_group, already_processed_with_group = get_processed_sets(knot_list)
+
+    # The burton file:
+    knot_list_path = BURTON_KNOTS_DIR + knot_list
+    delimiter = STD_DELIMITER
+    columns = STD_BURTON_COLUMNS
+
+    all_processed = True
+
+    with open(knot_list_path, newline='') as file:
+        reader = csv.DictReader(file, delimiter=delimiter, fieldnames=columns, skipinitialspace=True)
+
+        for idx, row in enumerate(reader):
+            # skip first line if it is header
+            if row[columns[0]] == columns[0]:
+                continue
+
+            if idx % info_count == 0:
+                print("[{}]: Now verifying idx {}.".format(knot_list, idx))
+                sys.stdout.flush()
+
+            # Get details
+            name = row["name"]
+
+            # skip if has been processed already
+            if name in already_processed_no_group or name in already_processed_with_group:
+                continue
+            else:
+                all_processed = False
+                print("[{}]: MISSING KNOT: The knot {} hasn't been found in the processed lists!".format(knot_list, name))
+                sys.stdout.flush()
+                break
+    
+    return all_processed
+
+def add_knots_to_groups(knot_list):
+    """ Considers the knots in 
+    PROCESSED_DIR + knot_list + WITH_GROUP
+
+    and adds them to the corresponding group in the groups folder.
+    """
+
+    # get the path of knots which have a group assigned.
+    knots_with_group_path = PROCESSED_DIR + knot_list + WITH_GROUP
+    assert(os.path.isfile(knots_with_group_path))
+
+    with_group_columns = WITH_GROUP_COLUMNS
+    delimiter = STD_DELIMITER
+
+    knots_with_group = load_knots_from_csv(knots_with_group_path, columns=with_group_columns, delimiter=delimiter)
+
+    # Insert them to the group list:
+    
+    # WITH_GROUP_COLUMNS = ["name", "crossings", "alexander_polynomial", "matched_name"]
+
+    for knot in knots_with_group:
+        name = knot["name"]
+        crossings = knot["crossings"]
+        matched_name = knot["matched_name"]
+
+        group_path = ALEXANDER_GROUPS_DIR + matched_name + ".csv"
+
+        row = {"name":name, "crossings":crossings}
+        columns = ALEX_GROUP_COLUMNS
+        add_to_list(group_path, row=row, columns=columns)
+
+    print("[{}]: Sorted in {} knots into their corresponding files.")
+    sys.stdout.flush()
+
+
+
 
 def main(knot_lists):
     """ Main routine.
 
     Executes for the knot lists specified in <knot_lists>
     """
+
+    total_start_time = datetime.today().now()
+    print("---------------------------------------------")
+    print("OVERALL STARTING TIME: {}.".format(total_start_time))
+    print("---------------------------------------------\n")
 
     # Creating the low_crossing groups (5-9 crossings) and makes a "distinction list"
     # --> /groups/5_1.csv           (etc.)
@@ -690,9 +771,6 @@ def main(knot_lists):
         # process the list
         process_knot_list(knot_list, processed_no_group, processed_with_group)
 
-
-
-
         print("\n---------------------------------------------")
         print("Done with the processing of {}.".format(knot_list))
         print("---------------------------------------------")
@@ -701,11 +779,39 @@ def main(knot_lists):
         sys.stdout.flush()
 
     # verify the processing.
-    print("[NOT IMPLEMENTED] Now verifying that all knots have been processed.")
+    print("\n---------------------------------------------")
+    print("Now verifying that all knots have been processed.")
+    verifying_start_time = datetime.today().now()
+    print("Start verifying at {}".format(verifying_start_time))
+
+    for knot_list in knot_lists:
+        all_processed = verify_processing(knot_list)
+        assert(all_processed)
+    
+    verifying_end_time = datetime.today().now()
+
+    print("Completed at {}".format(verifying_end_time))
+    print("Time taken for verification: {}".format(verifying_end_time - verifying_start_time))
+    print("All knots have been successfully processed.")
+    print("---------------------------------------------\n")
 
     # Sorting the matched knots into the groups.
-    print("[NOT IMPLEMENTED] Now sorting the matched knots into the group lists.")
+    print("\n---------------------------------------------")
+    print("Now sorting the matched knots into the group lists.")
+
+    for knot_list in knot_lists:
+        add_knots_to_groups(knot_list)
+
+    print("Done with sorting in the knots.")
+    print("---------------------------------------------\n")
     
+
+    total_end_time = datetime.today().now()
+    print("---------------------------------------------")
+    print("ALL FINISHED AT {}".format(total_end_time))
+    print("TOTAL TIME TAKEN: {}.".format(total_end_time - total_start_time))
+    print("---------------------------------------------\n")
+
     sys.stdout.flush()
 
 
@@ -715,24 +821,24 @@ def main(knot_lists):
 #
 
 knot_lists = [
-#    "16n-satellite.csv",
-#    "16n-torus.csv",
-#    "16a-hyp.csv",
-#    "16n-hyp.csv",
+    "16n-satellite.csv",
+    "16n-torus.csv",
+    "16a-hyp.csv",
+    "16n-hyp.csv",
 
-#    "17a-torus.csv",
-#    "17n-satellite.csv",
-#    "17a-hyp.csv",
-#    "17n-hyp.csv",
+    "17a-torus.csv",
+    "17n-satellite.csv",
+    "17a-hyp.csv",
+    "17n-hyp.csv",
 
-#    "18n-satellite.csv",
-#    "18a-hyp.csv",
-#    "18n-hyp.csv",
+    "18n-satellite.csv",
+    "18a-hyp.csv",
+    "18n-hyp.csv",
 
-#    "19n-satellite.csv",
-#    "19a-torus.csv",
+    "19n-satellite.csv",
+    "19a-torus.csv",
 
-#    "19a-hyp.csv",
+    "19a-hyp.csv",
 
     "19n-hyp.csv01", # Split into 6 files, to avoid memory overflow with too many tasks in the pool.
     "19n-hyp.csv02",
