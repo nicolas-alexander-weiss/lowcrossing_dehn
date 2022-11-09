@@ -8,7 +8,7 @@ of c(K) + c(K') is. Here c(K) denotes the crossing number of K.
 
 It is known that for 5_2=K5a1 an equality of Dehnfillings K5_2(0,1) = K'(0,1) implies K = K'. [Theorem 1.11 in https://arxiv.org/abs/2208.03307, cf. https://arxiv.org/pdf/2209.09805.pdf]
 Furthermore, it is known that any slope of the unknot, the trefoil and the figure eight knot is characterizing. [https://arxiv.org/abs/math/0310164, https://arxiv.org/abs/math/0604079]
-Furthermore, an example of two knots with distinct filling was found in [Example 4.10 in https://arxiv.org/abs/2102.04391], such that c(K) + c(K') = 26. This is K12n309(0,1)= m(K14n14254)(0,1).
+Furthermore, an example of two knots with the same 0-filling was found in [Example 4.10 in https://arxiv.org/abs/2102.04391], such that c(K) + c(K') = 26. This is K12n309(0,1)= m(K14n14254)(0,1).
 
 Thus, the minimum such sum must lie in the interval [11, 26].
 
