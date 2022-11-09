@@ -22,3 +22,4 @@ crossing number 16, 17, 18, or 19 and a corresponding knot of crossing number 6,
 ## COMMENTs:
 1. The knot 5_2=K5a1 has 0 as a characterizing slope and thus does not need to be considered. So I guess you can remove that knot from your list.
 2. I started a careful computation of the census knots. I think we should be able to rather quickly completely classify all census knots with the same 0-surgeries. And this computations might serve as a blueprint for what we want to do with the low-crossing knots. The notebook is uploaded. We can check the remaining knots via regina. 
+3. There is another recent paper (https://arxiv.org/pdf/2211.04280.pdf) that shows that several low-crossing knots have 0 as characterizing slope. We can use that results and their methods later.
