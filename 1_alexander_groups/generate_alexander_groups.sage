@@ -703,7 +703,8 @@ def add_knots_to_groups(knot_list):
     """ Considers the knots in 
     PROCESSED_DIR + knot_list + WITH_GROUP
 
-    and adds them to the corresponding group in the groups folder.
+    and adds them to the corresponding group in the groups folder. 
+    It also adds the DT name. # TODO: This should have been already when the "processed" lists are created!
     """
 
     # get the path of knots which have a group assigned.
@@ -714,6 +715,25 @@ def add_knots_to_groups(knot_list):
     delimiter = STD_DELIMITER
 
     knots_with_group = load_knots_from_csv(knots_with_group_path, columns=with_group_columns, delimiter=delimiter)
+
+    # Load DT Polynomials: TODO Make this part of the normal routine!!
+    dt_codes = {knot["name"]:None for knot in knots_with_group}
+
+    knot_list_path = BURTON_KNOTS_DIR + knot_list
+    delimiter = STD_DELIMITER
+    columns = STD_BURTON_COLUMNS
+
+    with open(knot_list_path, newline='') as file:
+        reader = csv.DictReader(file, delimiter=delimiter, fieldnames=columns, skipinitialspace=True)
+
+        for idx, row in enumerate(reader):
+            # skip first line if it is header
+            if row[columns[0]] == columns[0]:
+                continue
+            name = row[columns[0]]
+            dt_code = row[columns[2]]
+            if name in dt_codes.keys():
+                dt_codes[name] = dt_code
 
     # Insert them to the group list:
     
@@ -726,8 +746,8 @@ def add_knots_to_groups(knot_list):
 
         group_path = ALEXANDER_GROUPS_DIR + matched_name + ".csv"
 
-        row = {"name":name, "crossings":crossings}
-        columns = ALEX_GROUP_COLUMNS
+        row = {"name":name, "crossings":crossings, "dt_code":dt_codes[name]}  # TODO: MIGHT HAVE TO MODIFY LATER!
+        columns = ALEX_GROUP_COLUMNS + ["dt_code"] # TODO: MIGHT HAVE TO MODIFY LATER WHEN STREAMLINING!
         add_to_list(group_path, row=row, columns=columns)
 
     print("[{}]: Sorted in {} knots into their corresponding files.".format(knot_list, len(knots_with_group)))
@@ -815,6 +835,34 @@ def main(knot_lists):
     sys.stdout.flush()
 
 
+def recreate_group_files_from_results_withDT(knot_lists):
+    total_start_time = datetime.today().now()
+    print("---------------------------------------------")
+    print("OVERALL STARTING TIME: {}.".format(total_start_time))
+    print("---------------------------------------------\n")
+
+    # Creating the low_crossing groups (5-9 crossings) and makes a "distinction list"
+    # --> /groups/5_1.csv           (etc.)
+    # --> ./distinction_list.csv
+    create_low_crossing_groups()
+    sys.stdout.flush()
+
+    # Sort in the knots (now includes DT code!)
+    for knot_list in knot_lists:
+        add_knots_to_groups(knot_list)
+
+    print("Done with sorting in the knots.")
+    print("---------------------------------------------\n")
+    
+
+    total_end_time = datetime.today().now()
+    print("---------------------------------------------")
+    print("ALL FINISHED AT {}".format(total_end_time))
+    print("TOTAL TIME TAKEN: {}.".format(total_end_time - total_start_time))
+    print("---------------------------------------------\n")
+
+    sys.stdout.flush()
+
 
 #################################
 # The knot lists to be considered
@@ -870,7 +918,9 @@ large_lists_old = [
 
 if __name__ == "__main__":
     
-    main(knot_lists)
+    recreate_group_files_from_results_withDT(knot_lists)
+
+    # main(knot_lists)
     
     # create_low_crossing_groups()
 
