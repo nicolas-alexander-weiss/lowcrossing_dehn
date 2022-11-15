@@ -850,6 +850,7 @@ def recreate_group_files_from_results_withDT(knot_lists):
     # Sort in the knots (now includes DT code!)
     for knot_list in knot_lists:
         add_knots_to_groups(knot_list)
+        print("[{}]: Done adding the knots to the groups.".format(knot_list))
 
     print("Done with sorting in the knots.")
     print("---------------------------------------------\n")
