@@ -66,7 +66,7 @@ def create_low_crossing_groups():
         if not found:
             groups[key] = []
         
-        groups[key].append({"name":name, "crossings":len(k.link().crossings)})
+        groups[key].append({"name":name, "crossings":len(k.link().crossings), "dt_code":""})
     
     print("Number of different Alexander polynomials: {}".format(len(groups.keys())))
 
@@ -86,7 +86,7 @@ def create_low_crossing_groups():
         representative = groups[k][0]["name"]
         csv_path = "groups/" + representative + ".csv"
         distinction_list.append({"name":representative, "alexander_polynomial":k})
-        print_knots_to_csv(groups[k], columns=["name", "crossings"], csv_file_path=csv_path)
+        print_knots_to_csv(groups[k], columns=["name", "crossings", "dt_code"], csv_file_path=csv_path)
 
     print("\nNow creating the distinction file.")
     print_knots_to_csv(distinction_list, columns=["name", "alexander_polynomial"], csv_file_path="distinction_list.csv")
