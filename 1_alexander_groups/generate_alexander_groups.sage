@@ -29,6 +29,19 @@ from census_csv_tools import *
 
 import os, sys
 
+###### Call back functions:
+# callback function for the multiprocessing.
+def std_callback(future): # call back
+    try:
+        result = future.result() # blocks until done.
+    except TimeoutError as error:
+        print("Ended computation after {} seconds".format(error.args[1]))
+    except Exception as error:
+        print("Function raised {}".format(error))
+        print(error.traceback)  # traceback of the function
+
+
+
 ##################################################
 ### Create the csv files for the groups
 
@@ -420,8 +433,6 @@ def process_burton_list(csv_file_path, info_count, knot_info_count, max_workers,
                 if idx % info_count == 0 and info_count != -1:
                     print("[{}]: Read-in {} lines.".format(info_name, idx))
                     sys.stdout.flush()
-
-                
 
                 # add the process.
                 future = pool.schedule(add_burton_knot_to_groups, args=(name, dt_code, shm_name, shm_count_name, knot_info_count))
@@ -876,6 +887,27 @@ def add_knots_to_groups(knot_list, list_type=LIST_TYPE_NORMAL):
     sys.stdout.flush()
 
 
+def initiate_processing(knot_list, list_type):
+    print("\n---------------------------------------------")
+    print("---------------------------------------------")
+    print("Starting the processing of {}.".format(knot_list))
+    print("---------------------------------------------\n")
+    
+    # load the processed knots as sets
+    processed_no_group, processed_with_group = get_processed_sets(knot_list, list_type)
+
+    print("Num already processed knots without group: {}".format(len(processed_no_group)))
+    print("Num already processed knots with group: {}".format(len(processed_with_group)))
+
+    # process the list
+    process_knot_list(knot_list, processed_no_group, processed_with_group, list_type=list_type)
+
+    print("\n---------------------------------------------")
+    print("Done with the processing of {}.".format(knot_list))
+    print("---------------------------------------------")
+    print("---------------------------------------------\n")
+
+    sys.stdout.flush()
 
 
 def main(knot_lists, list_type, overwrite=False):
@@ -902,28 +934,15 @@ def main(knot_lists, list_type, overwrite=False):
     # Create if not already exist the files for tracking processed knots
     create_processed_knots_files(knot_lists, list_type)
 
-    # process the list
-    for knot_list in knot_lists:
-        print("\n---------------------------------------------")
-        print("---------------------------------------------")
-        print("Starting the processing of {}.".format(knot_list))
-        print("---------------------------------------------\n")
-        
-        # load the processed knots as sets
-        processed_no_group, processed_with_group = get_processed_sets(knot_list, list_type)
+    #
+    # Given the waiting time for writing the files we can always run two lists in parallel.
+    #
 
-        print("Num already processed knots without group: {}".format(len(processed_no_group)))
-        print("Num already processed knots with group: {}".format(len(processed_with_group)))
-
+    with ProcessPool(max_workers=2) as parallel_list_pool:
         # process the list
-        process_knot_list(knot_list, processed_no_group, processed_with_group, list_type=list_type)
-
-        print("\n---------------------------------------------")
-        print("Done with the processing of {}.".format(knot_list))
-        print("---------------------------------------------")
-        print("---------------------------------------------\n")
-
-        sys.stdout.flush()
+        for knot_list in knot_lists:
+            future = parallel_list_pool.schedule(initiate_processing, args=(knot_list, list_type))
+            future.add_done_callback(std_callback)
 
     # verify the processing.
     print("\n---------------------------------------------")
@@ -1006,9 +1025,9 @@ def recreate_group_files_from_results_withDT(knot_lists, list_type):
 
 knot_lists = [
     "16n-satellite.csv",
-    "16n-torus.csv",]
+    "16n-torus.csv",
 
-extra = [    "16a-hyp.csv",
+    "16a-hyp.csv",
     "16n-hyp.csv",
 
     "17a-torus.csv",
@@ -1033,14 +1052,13 @@ extra = [    "16a-hyp.csv",
     "19n-hyp.csv06"
 ]
 
-
 if __name__ == "__main__":
 
     # create_sums_low_crossing_groups()
     
     # recreate_group_files_from_results_withDT(knot_lists)
 
-    main(knot_lists, list_type=LIST_TYPE_SUM, overwrite=True)
+    main(knot_lists, list_type=LIST_TYPE_SUM, overwrite=False)
     
     # create_low_crossing_groups()
 
