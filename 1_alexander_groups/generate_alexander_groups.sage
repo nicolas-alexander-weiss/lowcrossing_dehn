@@ -1034,7 +1034,8 @@ knot_lists = [
     "17n-satellite.csv",
     "17a-hyp.csv",
     "17n-hyp.csv",
-
+]
+still_todo = [
     "18n-satellite.csv",
     "18a-hyp.csv",
     "18n-hyp.csv",
