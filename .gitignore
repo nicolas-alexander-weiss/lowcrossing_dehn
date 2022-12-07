@@ -3,6 +3,8 @@ burton_knots/
 
 # Ignore the lists of processed knots (large files!)
 processed/
+sum_processed/
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

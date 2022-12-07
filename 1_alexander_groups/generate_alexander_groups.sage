@@ -910,7 +910,7 @@ def initiate_processing(knot_list, list_type):
     sys.stdout.flush()
 
 
-def main(knot_lists, list_type, overwrite=False):
+def main(knot_lists, list_type, overwrite_group_lists=False):
     """ Main routine.
 
     Executes for the knot lists specified in <knot_lists>
@@ -928,7 +928,7 @@ def main(knot_lists, list_type, overwrite=False):
     if list_type==LIST_TYPE_NORMAL:
         create_low_crossing_groups()
     elif list_type==LIST_TYPE_SUM:
-        create_sums_low_crossing_groups(overwrite=overwrite)
+        create_sums_low_crossing_groups(overwrite = overwrite_group_lists)
     else:
         assert(list_type in LIST_TYPES)
     # Create if not already exist the files for tracking processed knots
@@ -1034,8 +1034,6 @@ knot_lists = [
     "17n-satellite.csv",
     "17a-hyp.csv",
     "17n-hyp.csv",
-]
-still_todo = [
     "18n-satellite.csv",
     "18a-hyp.csv",
     "18n-hyp.csv",
@@ -1059,7 +1057,7 @@ if __name__ == "__main__":
     
     # recreate_group_files_from_results_withDT(knot_lists)
 
-    main(knot_lists, list_type=LIST_TYPE_SUM, overwrite=False)
+    main(knot_lists, list_type=LIST_TYPE_SUM, overwrite_group_lists=True)
     
     # create_low_crossing_groups()
 
