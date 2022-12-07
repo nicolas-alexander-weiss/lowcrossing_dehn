@@ -95,5 +95,4 @@ crossing number 16, 17, 18, or 19 and a corresponding knot of crossing number 6,
 - Use Regina to compute the number of index n subgroups (for small n) of the 0-fillings of the knots in lists (2) and (5). 
 - For the remaining pairs in lists (2) and (5) use regina to perform a search through the Pachner graph to find equal triangulations.
 - Use Regina to compute the number of index n subgroups (for small n) of the 0-fillings of the knots in list (6). This should reduce the number of possible pairs significantly. Such that we are able to work more refined with the smaller list.
-- Finish the remaining connected sums of low crossing knots with knots from Burton's list. 
 - Show that 5_1 has no partner with 20 crossings. (Use the new classification for that.)
