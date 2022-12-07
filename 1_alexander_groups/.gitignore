@@ -1,0 +1,3 @@
+# Ignore the lists of processed knots (large files!)
+processed/
+sum_processed/
