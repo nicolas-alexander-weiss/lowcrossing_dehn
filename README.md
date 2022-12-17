@@ -89,10 +89,11 @@ crossing number 16, 17, 18, or 19 and a corresponding knot of crossing number 6,
   ['K15n153789',
    "JSJ[('SFSpace', 'SFS [D: (2,1) (2,-1)]'), ('hyperbolic', 'm032')]"]]]
  
-(6) We have around 40 groups of knots with the same Alexander-polynomials such that their 0-fillings are hyperbolic and share the same volume. (See the notebook of the text file Results.)
+(6) We have around 40 groups of knots with the same Alexander-polynomials such that their 0-fillings are hyperbolic and share the same volume and such that their knot Floer homology invariants agree (fiberedness status, genus, and rank in Alexander grading=genus). The results are in the text or pickle file with the name: 
+
+(7) All knots with at most 15 crossings are such that: K(0,1)!=(mK)(0,1).
 
 ## TO DO:
-- Use Regina to compute the number of index n subgroups (for small n) of the 0-fillings of the knots in lists (2) and (5). 
 - For the remaining pairs in lists (2) and (5) use regina to perform a search through the Pachner graph to find equal triangulations.
 - Use Regina to compute the number of index n subgroups (for small n) of the 0-fillings of the knots in list (6). This should reduce the number of possible pairs significantly. Such that we are able to work more refined with the smaller list.
 - Show that 5_1 has no partner with 20 crossings. (Use the new classification for that.)
