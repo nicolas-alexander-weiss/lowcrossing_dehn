@@ -89,7 +89,7 @@ crossing number 16, 17, 18, or 19 and a corresponding knot of crossing number 6,
   ['K15n153789',
    "JSJ[('SFSpace', 'SFS [D: (2,1) (2,-1)]'), ('hyperbolic', 'm032')]"]]]
  
-(6) We have around 40 groups of knots with the same Alexander-polynomials such that their 0-fillings are hyperbolic and share the same volume and such that their knot Floer homology invariants agree (fiberedness status, genus, and rank in Alexander grading=genus). The results are in the text or pickle file with the name: 
+(6) We have 40328 groups of knots with the same Alexander-polynomials such that their 0-fillings are hyperbolic and share the same volume and such that their knot Floer homology invariants agree (fiberedness status, genus, and rank in Alexander grading=genus). The results are in the text or pickle file with the name: groups_of_same_volume_alex_knotFloer
 
 (7) All knots with at most 15 crossings are such that: K(0,1)!=(mK)(0,1).
 
