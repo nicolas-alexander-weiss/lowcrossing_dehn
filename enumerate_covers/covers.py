@@ -34,10 +34,25 @@ probably_equal = [
 ]
 
 def compute_covers_zero_surgery(snappy_name, deg_range):
+    """
+    TODO: Verify if that is the correct filling!!!
+
+    This constructs the snappy manifold, copies it into regina, where it specifically needs 
+    to be considered as a SnapPea Triangulation. There one then can do fillings and have them solidified 
+    in the triangulation.
+
+    If one first Dehn-fills a knot in snappy and then copies it into Regina, the filling information 
+    will be lost!!!
+    
+    """
     M = snappy.Manifold(snappy_name)
-    M.dehn_fill((0,1))
-    M_reg = Triangulation3(M)
-    group = M_reg.group()
+    M_reg = SnapPeaTriangulation(Triangulation3(M))
+
+    # do the Dehnfilling in Regina.
+    M_reg.fill(0,1)
+    M_filled = M_reg.filledAll()  # permanently fill. This produces a new triangulation.
+
+    group = M_filled.group()
     num_covers = [len(group.enumerateCovers(i)) for i in range(deg_range[0], deg_range[1]+1)]
     
     return num_covers
@@ -171,8 +186,8 @@ if __name__ == "__main__":
 
     sys.stdout.flush()
 
-    csv_out_path_7 = "remaining_7.csv"
-    distinguish_groups_by_covers_parallel(remaining_groups, (7,7), csv_out_path_7, num_workers=num_workers)
+    csv_out_path_7 = "remaining_2-7.csv"
+    distinguish_groups_by_covers_parallel(remaining_groups, (2,7), csv_out_path_7, num_workers=num_workers)
 
     print("We have completed computing the number of degree 7 covers for the remaining knots.")
     resulting_groups_7 = load_groups_from_csv(csv_out_path_7) 
