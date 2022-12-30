@@ -64,7 +64,7 @@ def compute_covers_zero_surgery(snappy_name, deg_range):
     M_reg.fill(0,1)
     M_filled = M_reg.filledAll()  # permanently fill. This produces a new triangulation.
 
-    group = M_filled.group()
+    group = M_filled.fundamentalGroup()
     num_covers = [len(group.enumerateCovers(i)) for i in range(deg_range[0], deg_range[1]+1)]
     
     return num_covers
@@ -185,9 +185,6 @@ if __name__ == "__main__":
 
     with open(groups_pickle_path, "rb") as file:
         groups = pickle.load(file)
-
-
-    print(groups[:10])
 
     distinguish_groups_by_covers_parallel(groups, (2,6), csv_out_path, num_workers=num_workers)
 
