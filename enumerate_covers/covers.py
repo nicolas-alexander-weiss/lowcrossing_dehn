@@ -33,6 +33,18 @@ probably_equal = [
     ['o9_37768', "JSJ([('SFSpace', 'M/n2 x~ S1'), ('hyperbolic', 'm032')])"]]
 ]
 
+###### Call back functions:
+# callback function for the multiprocessing.
+def std_callback(future): # call back
+    try:
+        result = future.result() # blocks until done.
+    except TimeoutError as error:
+        print("Ended computation after {} seconds".format(error.args[1]))
+    except Exception as error:
+        print("Function raised {}".format(error))
+        print(error.traceback)  # traceback of the function
+
+
 def compute_covers_zero_surgery(snappy_name, deg_range):
     """
     TODO: Verify if that is the correct filling!!!
@@ -133,6 +145,7 @@ def distinguish_groups_by_covers_parallel(groups, deg_range, csv_out_path, num_w
         with ProcessPool(max_workers=num_workers) as pool:
             for group in groups:
                 future = pool.schedule(distinguish_knotgroup_by_covers, args=(group, deg_range, csv_out_path, lock))
+                future.add_done_callback(std_callback)
 
     total_end_time = datetime.today().now()
     print("---------------------------------------------")
@@ -173,6 +186,8 @@ if __name__ == "__main__":
     with open(groups_pickle_path, "rb") as file:
         groups = pickle.load(file)
 
+
+    print(groups[:10])
 
     distinguish_groups_by_covers_parallel(groups, (2,6), csv_out_path, num_workers=num_workers)
 
