@@ -201,7 +201,7 @@ if __name__ == "__main__":
 
     sys.stdout.flush()
 
-    csv_out_path_7 = "remaining_2-7.csv"
+    csv_out_path_7 = "results2-7.csv"
     distinguish_groups_by_covers_parallel(remaining_groups, (2,7), csv_out_path_7, num_workers=num_workers)
 
     print("We have completed computing the number of degree 7 covers for the remaining knots.")
