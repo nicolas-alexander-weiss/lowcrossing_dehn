@@ -164,6 +164,9 @@ if __name__ == "__main__":
 
     num_workers = 16
 
+
+    print("Starting with the computation of the covers up to deg 6.\n")
+
     deg_range = (2,6)
     csv_out_path = "results2-6.csv"
 
