@@ -58,14 +58,16 @@ def compute_covers_zero_surgery(snappy_name, deg_range):
     
     """
     M = snappy.Manifold(snappy_name)
-    M_reg = SnapPeaTriangulation(Triangulation3(M))
+    # M_reg = SnapPeaTriangulation(Triangulation3(M))
+    # REMARK: THE ABOVE IS NOT LOSSLESS. Information about longitude and meridian is not correctly transferred.
 
-    # do the Dehnfilling in Regina.
-    M_reg.fill(0,1)
-    M_filled = M_reg.filledAll()  # permanently fill. This produces a new triangulation.
+    M.dehn_fill((0,1))
 
-    group = M_filled.fundamentalGroup()
-    num_covers = [len(group.enumerateCovers(i)) for i in range(deg_range[0], deg_range[1]+1)]
+    g_snappy = M.fundamental_group()
+
+    # in regina:
+    g_regina = GroupPresentation(len(g_snappy.generators()), g_snappy.relators())
+    num_covers = [len(g_regina.enumerateCovers(i)) for i in range(deg_range[0], deg_range[1]+1)]
     
     return num_covers
 
@@ -186,7 +188,18 @@ if __name__ == "__main__":
     with open(groups_pickle_path, "rb") as file:
         groups = pickle.load(file)
 
-    distinguish_groups_by_covers_parallel(groups, (2,6), csv_out_path, num_workers=num_workers)
+
+    # CLEAN UP THE LIST, there are doubled groups. 
+    #   (here assuming that if they are doubled then also in the same order )
+    # Turn into set:
+    group_set = set({})
+    for g in groups:
+        group_set.add(tuple(g))
+    groups = list(group_set)
+
+
+    # Now run the main code.
+    distinguish_groups_by_covers_parallel(groups, (2,6), csv_out_path, num_workers=num_workers, limit_num_groups=10)
 
     resulting_groups = load_groups_from_csv(csv_out_path) 
 
