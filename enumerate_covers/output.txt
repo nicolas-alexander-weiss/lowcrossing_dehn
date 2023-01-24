@@ -1,0 +1,25 @@
+Starting with the computation of the covers up to deg 6.
+
+---------------------------------------------
+OVERALL STARTING TIME: 2023-01-03 15:29:33.618046.
+---------------------------------------------
+
+Group Size max: 8
+Number of groups: 39562
+
+---------------------------------------------
+ALL FINISHED AT 2023-01-03 15:47:07.408396
+TOTAL TIME TAKEN: 0:17:33.790350.
+---------------------------------------------
+
+We have reduced the number of groups from 39562 to 22621.
+
+---------------------------------
+Now we run the computation for the degree 7 covers (This is expected to take longer)
+---------------------------------------------
+OVERALL STARTING TIME: 2023-01-03 15:47:08.022518.
+---------------------------------------------
+
+Group Size max: 8
+Number of groups: 22621
+

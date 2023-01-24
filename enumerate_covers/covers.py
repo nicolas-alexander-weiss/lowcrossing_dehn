@@ -199,7 +199,7 @@ if __name__ == "__main__":
 
 
     # Now run the main code.
-    distinguish_groups_by_covers_parallel(groups, (2,6), csv_out_path, num_workers=num_workers, limit_num_groups=10)
+    distinguish_groups_by_covers_parallel(groups, (2,6), csv_out_path, num_workers=num_workers)
 
     resulting_groups = load_groups_from_csv(csv_out_path) 
 
