@@ -1,7 +1,7 @@
 ### Enumerate Covers
 
 To characterize a group, it might be suitable to 
-copmute its number number of transitive representations onto S(n) upto conjugacy.
+compute its number number of transitive representations onto S(n) upto conjugacy.
 
 When G = \pi_1(X) this amounts to the number of covers of X of index n.
 
