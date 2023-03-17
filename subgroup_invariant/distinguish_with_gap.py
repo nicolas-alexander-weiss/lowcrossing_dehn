@@ -140,7 +140,7 @@ def compute_invariants_in_parallel(groups_csv_path, columns, csv_out_path, num_w
 
     # Load the groups
 
-    assert("rep" in columns and "group" in columns)
+    assert("group" in columns)
 
     groups_csv = census_csv_tools.load_knots_from_csv(groups_csv_path, columns)
 
@@ -295,8 +295,9 @@ if __name__ == "__main__":
     max_index = 6
     invariants_path = "subgrpinv_upto_" +  str(max_index) + ".csv"
 
-    new_group_columns = ["invariant", "group"]
+    new_group_columns = ["group", "invariant"]
 
+    recompute_invariant = True
     if recompute_invariant or not os.path.isfile(invariants_path):
         compute_invariants_in_parallel(csv_grps_idx5_path, columns=new_group_columns, csv_out_path=invariants_path, num_workers=16)
 
