@@ -10,7 +10,7 @@ import csv
 from collections import Counter
 from datetime import datetime
 import multiprocessing
-import multiset
+
 import os
 from pebble import ProcessPool
 import sys
@@ -82,7 +82,7 @@ def compute_invariant_in_gap(snappy_group, max_index, split_str="_"):
 
     command = "./get_inv.sh {} {} {} {}".format(gap_presentation["generator_str"], gap_presentation["relator_str"], split_str, max_index)
     print("The command: \n", command, "\n")
-
+    sys.stdout.flush()
     stream = os.popen(command)
     output = stream.read().replace("\n", "").replace(" ", "")
     
@@ -241,7 +241,7 @@ def distinguish_groups(csv_group_path, group_columns, invariants_path, invariant
 if __name__ == "__main__":
     recompute_invariant = False
 
-    max_index = 4
+    max_index = 5
     in_groups_csv = "../enumerate_covers/groups_of_same_volume_alex_knotFloer_coversdeg7.csv"
     group_columns = ["rep","covers","group"]
     
@@ -249,7 +249,7 @@ if __name__ == "__main__":
     inv_columns = ["knot","invariant"]
 
     if recompute_invariant or not os.path.isfile(invariants_path):
-        compute_invariants_in_parallel(in_groups_csv, columns=group_columns, csv_out_path=invariants_path, num_workers=4)
+        compute_invariants_in_parallel(in_groups_csv, columns=group_columns, csv_out_path=invariants_path, num_workers=16)
 
     print("Now distinguishing the groups by the given invariants")
     distinguish_groups(in_groups_csv, group_columns, invariants_path, inv_columns)
