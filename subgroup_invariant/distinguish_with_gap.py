@@ -163,15 +163,18 @@ def compute_invariants_in_parallel(groups_csv_path, columns, csv_out_path, num_w
 
     sys.stdout.flush()
 
-def distinguish_groups(csv_group_path, group_columns, invariants_path, invariants_columns):
+def distinguish_groups(csv_group_path, group_columns, invariants_path, invariants_columns, csv_out_new_path):
     invariants = census_csv_tools.load_knots_from_csv(invariants_path, columns=invariants_columns)
     invariant_dict = {row["knot"]:ast.literal_eval(row["invariant"]) for row in invariants}
     
     # print(invariant_dict)
     print("Num keys in the invariant dict: {}\n".format(len(invariant_dict.keys())))
 
+    assert("group" in group_columns)
+
     group_list = census_csv_tools.load_knots_from_csv(csv_group_path, columns=group_columns)
-    
+    groups = [ast.literal_eval(row["group"]) for row in group_list]
+
     #
 
 
@@ -189,67 +192,115 @@ def distinguish_groups(csv_group_path, group_columns, invariants_path, invariant
     # print("Duplicates: {}".format(duplicates))
     print("There are {} distinct knots appearing more than once.".format(len(duplicates)))
 
-    # print("\n........................\n")
-    # print("We will now merge the list (by transitivity...)!")
+    print("\n........................\n")
+    print("We will now merge the list (by transitivity...)!")
+    print("I.e. groups of the form (a,b,c,d), (a,b,c) will be combined to be a single group")
 
+    # Merge the groups:(Rk. Turning into sets! More reasonable.)
+
+    merged_group_sets = []
+    for group in groups:        
+        already_merged = False
+
+        for gr_set in merged_group_sets:
+            # No break after one non-trivial intersection to catch errors.
+            if len(gr_set.intersection(group)) != 0:
+                assert(not already_merged)
+
+                gr_set.update(group)
+
+                already_merged = True
+        
+        if not already_merged:
+            merged_group_sets.append(set(group))
+
+    # Now distinguish knots.
 
     new_distinction_list = []
 
     count = 0
-    num_non_singleton_groups = 0
-    for row in group_list:
-        group = ast.literal_eval(row["group"])
-        
-        distinction_list = []
-        for knot in group:
+    non_singleton_groups = []
+
+    for group_set in merged_group_sets:
+
+        partial_distinction_list = []
+        for knot in group_set:
             found_match = False
-            for subgroup in distinction_list:
+            for subgroup in partial_distinction_list:
                 if subgroup["invariant"] == invariant_dict[knot]:
-                    subgroup["members"] += [knot]
+                    subgroup["group"] += [knot]
                     found_match = True
                     break
             if not found_match:
-                distinction_list += [{"invariant":invariant_dict[knot], "members":[knot]}]
+                partial_distinction_list += [{"invariant":invariant_dict[knot], "group":[knot]}]
         
         # check if new groups created
-        if len(distinction_list) != 1:
+        if len(partial_distinction_list) != 1:
             count += 1
             # print("New groups were created!!")
         
-        for grp in distinction_list:
-            if len(grp["members"]) > 1:
-                num_non_singleton_groups += 1
+        for grp in partial_distinction_list:
+            if len(grp["group"]) > 1:
+                non_singleton_groups.append(grp)
         
         # insert the new group into the distinction lists
-        new_distinction_list += distinction_list
+        new_distinction_list += partial_distinction_list
 
     # print("The new distinction list: \n", new_distinction_list)
 
-    print("The new distinction list contains {} non-trivial groups.\n".format(num_non_singleton_groups))
+    print("The new distinction list contains {} non-trivial groups.\n".format(len(non_singleton_groups)))
     print("The invariant helped to distinguish the elements of a group in {} cases.\n".format(count))
 
+    # Now printing them to file.
+    census_csv_tools.print_knots_to_csv(non_singleton_groups, columns=["group", "invariant"], csv_file_path=csv_out_new_path)
 
             
 
 #
-# Note: deg 4 subgroups were computed for all ~9000 knots in ~1h50min.
+# Note: deg 4 subgroups were computed for all ~9000 knots in ~1h50min.(4 cores)
+# Note: deg 5 subgroups for 7500 knots in 2h (16 cores)
 #
-#
-
-
 
 if __name__ == "__main__":
     recompute_invariant = False
 
     max_index = 5
-    in_groups_csv = "../enumerate_covers/groups_of_same_volume_alex_knotFloer_coversdeg7.csv"
+    in_groups_name = "groups_of_same_volume_alex_knotFloer_coversdeg7"
+    in_groups_folder = "../enumerate_covers/"
+    in_groups_csv = in_groups_folder + in_groups_name + ".csv"
     group_columns = ["rep","covers","group"]
     
     invariants_path = "subgrpinv_upto_" +  str(max_index) + ".csv"
     inv_columns = ["knot","invariant"]
 
+    csv_grps_idx5_path = in_groups_name + "_subgrpIdx5" + ".csv"
+
     if recompute_invariant or not os.path.isfile(invariants_path):
         compute_invariants_in_parallel(in_groups_csv, columns=group_columns, csv_out_path=invariants_path, num_workers=16)
 
     print("Now distinguishing the groups by the given invariants")
-    distinguish_groups(in_groups_csv, group_columns, invariants_path, inv_columns)
+
+    overwrite_csv = True
+    if overwrite_csv or not os.path.isfile(csv_grps_idx5_path):
+        distinguish_groups(in_groups_csv, group_columns, invariants_path, inv_columns, csv_grps_idx5_path)
+
+    #
+    # Now go to deg 6 and do again
+    
+    print("\n-------------------------\n")
+
+    print("For the remaining groups, compute subgroup invariant up to index 6.")
+    csv_grps_idx6_path = in_groups_name + "_subgrpIdx6" + ".csv"
+
+    max_index = 6
+    invariants_path = "subgrpinv_upto_" +  str(max_index) + ".csv"
+
+    new_group_columns = ["invariant", "group"]
+
+    if recompute_invariant or not os.path.isfile(invariants_path):
+        compute_invariants_in_parallel(csv_grps_idx5_path, columns=new_group_columns, csv_out_path=invariants_path, num_workers=16)
+
+    print("Now distinguishing the groups by the given invariants")
+    overwrite_csv = True
+    if overwrite_csv or not os.path.isfile(csv_grps_idx6_path):
+        distinguish_groups(in_groups_csv, group_columns, invariants_path, inv_columns, csv_grps_idx6_path)
