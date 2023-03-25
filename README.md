@@ -93,6 +93,40 @@ crossing number 16, 17, 18, or 19 and a corresponding knot of crossing number 6,
 
 (7) All knots with at most 15 crossings are such that: K(0,1)!=(mK)(0,1).
 
+(8) We also compared the census knots with knots of at most 15 crossings:
+We found 3 pairs: [['t12270', 'K13n2527'], ['t11462', 'K14n3155'], ['o9_40081', 'K15n94464']]
+One knot that might share the 0-surgery with a connected sum:
+['o9_37563', 'K3a1+sum+K5a2', 'SFS [D: (2,1) (3,2)] U/m SFS [D: (2,1) (5,2)], m = [ -3,4 | -2,3 ]']
+And 12 more possible pairs:
+[[['m201', 'SFS [S2: (2,1) (5,1) (10,-7)]'],
+  ['K5a2', 'SFS [S2: (2,1) (5,2) (10,-9)]']],
+ [['o9_34818', 'SFS [S2: (2,1) (5,1) (10,-7)]'],
+  ['K5a2', 'SFS [S2: (2,1) (5,2) (10,-9)]']],
+ [['s188', 'SFS [S2: (3,1) (4,1) (12,-7)]'],
+  ['K8n3', 'SFS [S2: (3,2) (4,1) (12,-11)]']],
+ [['o9_22337',
+   'SFS [D: (2,1) (3,1)] U/m SFS [D: (2,1) (6,5)], m = [ -2,3 | -1,2 ]'],
+  ['K15n124802',
+   'SFS [D: (2,1) (3,1)] U/m SFS [D: (2,1) (6,1)], m = [ -7,9 | -3,4 ]']],
+ [['v0595', 'SFS [S2: (2,1) (7,2) (14,-11)]'],
+  ['K7a7', 'SFS [S2: (2,1) (7,3) (14,-13)]']],
+ [['t12120', 'SFS [S2: (2,1) (7,2) (14,-11)]'],
+  ['K7a7', 'SFS [S2: (2,1) (7,3) (14,-13)]']],
+ [['t01142', 'SFS [S2: (3,1) (5,2) (15,-11)]'],
+  ['K10n21', 'SFS [S2: (3,1) (5,3) (15,-14)]']],
+ [['t02019', 'SFS [S2: (2,1) (9,2) (18,-13)]'],
+  ['K9a41', 'SFS [S2: (2,1) (9,4) (18,-17)]']],
+ [['o9_04139', 'SFS [S2: (3,1) (7,2) (21,-13)]'],
+  ['K14n21881', 'SFS [S2: (3,2) (7,2) (21,-20)]']],
+ [['o9_04950', 'SFS [S2: (2,1) (11,3) (22,-17)]'],
+  ['K11a367', 'SFS [S2: (2,1) (11,5) (22,-21)]']],
+ [['o9_31828', "JSJ([('SFSpace', 'M/n2 x~ S1'), ('hyperbolic', 'm032')])"],
+  ['K15n153789',
+   "JSJ[('SFSpace', 'SFS [D: (2,1) (2,-1)]'), ('hyperbolic', 'm032')]"]],
+ [['o9_37768', "JSJ([('SFSpace', 'M/n2 x~ S1'), ('hyperbolic', 'm032')])"],
+  ['K15n153789',
+   "JSJ[('SFSpace', 'SFS [D: (2,1) (2,-1)]'), ('hyperbolic', 'm032')]"]]]
+
 ## TO DO:
 - For the remaining pairs in lists (2) and (5) use regina to perform a search through the Pachner graph to find equal triangulations.
 - Use Regina to compute the number of index n subgroups (for small n) of the 0-fillings of the knots in list (6). This should reduce the number of possible pairs significantly. Such that we are able to work more refined with the smaller list.
