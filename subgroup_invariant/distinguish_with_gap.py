@@ -126,7 +126,7 @@ def compute_invariant_to_csv(snappy_name, max_index, csv_out_path, lock):
         lock.release()
 
 
-def compute_invariants_in_parallel(groups_csv_path, columns, csv_out_path, num_workers):
+def compute_invariants_in_parallel(groups_csv_path, columns, csv_out_path, num_workers, already_computed_knots):
     """Computes the subgroup invariant upto the given index for all the knots appearing in the groups_csv file.
 
     Arguments:
@@ -152,6 +152,9 @@ def compute_invariants_in_parallel(groups_csv_path, columns, csv_out_path, num_w
                 group = ast.literal_eval(row["group"])
 
                 for knot in group:
+                    if knot in already_computed_knots:
+                        print("Already computed the invariant for {}.".format(knot))
+                        continue
                     future = pool.schedule(compute_invariant_to_csv, args=(knot, max_index, csv_out_path, lock))
                     future.add_done_callback(std_callback)
 
@@ -297,9 +300,15 @@ if __name__ == "__main__":
 
     new_group_columns = ["group", "invariant"]
 
+    already_computed_knots = []
+    recompute_all = False
+    if os.path.isfile(invariants_path) and not recompute_all:
+        already_computed_invariants = census_csv_tools.load_knots_from_csv(invariants_path, ["knot", "invariant"])
+        already_computed_knots = [row["knot"] for row in already_computed_invariants]
+
     recompute_invariant = True
     if recompute_invariant or not os.path.isfile(invariants_path):
-        compute_invariants_in_parallel(csv_grps_idx5_path, columns=new_group_columns, csv_out_path=invariants_path, num_workers=16)
+        compute_invariants_in_parallel(csv_grps_idx5_path, columns=new_group_columns, csv_out_path=invariants_path, num_workers=16, already_computed_knots=already_computed_knots)
 
     print("Now distinguishing the groups by the given invariants")
     overwrite_csv = True
