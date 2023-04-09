@@ -265,6 +265,7 @@ def distinguish_groups(csv_group_path, group_columns, invariants_path, invariant
 #
 
 if __name__ == "__main__":
+    print("--------Start: Deg5 Invariants----------------")
     recompute_invariant = False
 
     max_index = 5
@@ -287,9 +288,15 @@ if __name__ == "__main__":
     if overwrite_csv or not os.path.isfile(csv_grps_idx5_path):
         distinguish_groups(in_groups_csv, group_columns, invariants_path, inv_columns, csv_grps_idx5_path)
 
+    print("-------End: Deg5 Invariants------------")
+    
+    print("-------Start: Deg6 Invariants-----------")
     #
     # Now go to deg 6 and do again
-    
+    in_groups_csv = csv_grps_idx5_path
+    group_columns = ["group", "invariant"]
+
+
     print("\n-------------------------\n")
 
     print("For the remaining groups, compute subgroup invariant up to index 6.")
@@ -298,19 +305,21 @@ if __name__ == "__main__":
     max_index = 6
     invariants_path = "subgrpinv_upto_" +  str(max_index) + ".csv"
 
-    new_group_columns = ["group", "invariant"]
 
     already_computed_knots = []
-    recompute_all = False
-    if os.path.isfile(invariants_path) and not recompute_all:
+    ignore_computed = False
+    if os.path.isfile(invariants_path) and not ignore_computed:
         already_computed_invariants = census_csv_tools.load_knots_from_csv(invariants_path, ["knot", "invariant"])
         already_computed_knots = [row["knot"] for row in already_computed_invariants]
 
-    recompute_invariant = True
+    recompute_invariant = False
     if recompute_invariant or not os.path.isfile(invariants_path):
-        compute_invariants_in_parallel(csv_grps_idx5_path, columns=new_group_columns, csv_out_path=invariants_path, num_workers=16, already_computed_knots=already_computed_knots)
+        compute_invariants_in_parallel(in_groups_csv, columns=group_columns, csv_out_path=invariants_path, num_workers=16, already_computed_knots=already_computed_knots)
 
     print("Now distinguishing the groups by the given invariants")
     overwrite_csv = True
     if overwrite_csv or not os.path.isfile(csv_grps_idx6_path):
+        # This time run with idx 5 groups as input.
         distinguish_groups(in_groups_csv, group_columns, invariants_path, inv_columns, csv_grps_idx6_path)
+    print("-------------- End: Deg6 Invariants--------------")
+
