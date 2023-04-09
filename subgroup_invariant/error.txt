@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/home/weiss/Desktop/lowcrossing_dehn/subgroup_invariant/distinguish_with_gap.py", line 316, in <module>
+    distinguish_groups(in_groups_csv, group_columns, invariants_path, inv_columns, csv_grps_idx6_path)
+  File "/home/weiss/Desktop/lowcrossing_dehn/subgroup_invariant/distinguish_with_gap.py", line 238, in distinguish_groups
+    partial_distinction_list += [{"invariant":invariant_dict[knot], "group":[knot]}]
+KeyError: 'K15a1904'
