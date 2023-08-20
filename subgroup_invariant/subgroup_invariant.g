@@ -116,6 +116,7 @@ TotalSubgroupInvariantFpGroup := function(G, max_index)
     return total_invariant;
 end;
 
+
 if verbose then
     # The total invariant, for all subgroups:
     total_invariant := TotalSubgroupInvariantFpGroup(example_group, example_max_index);
