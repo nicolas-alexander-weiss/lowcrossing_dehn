@@ -167,7 +167,7 @@ def get_knots_to_compute(previous_groups_csv,columns):
 if __name__ == "__main__":
 
     debug_level = 2
-    num_workers = 4
+    num_workers = 16
 
     deg=8
 
@@ -179,9 +179,9 @@ if __name__ == "__main__":
     print("Knots to consider:\n", knots)
 
     accumulated_invariants = accumulate_computed_invariants(computed_invariants_csv, ["knot", "invariant"])
-    print("before: \n", accumulated_invariants)
+    print("\nbefore: \n", accumulated_invariants)
 
     compute_covers_in_parallel(knots, computed_invariants_csv, deg=deg, num_workers=num_workers, debug_level=debug_level)
 
-    # accumulated_invariants = accumulate_computed_invariants(computed_invariants_csv, ["knot", "invariant"])
-    # print("afterwards: \n", accumulated_invariants)
+    accumulated_invariants = accumulate_computed_invariants(computed_invariants_csv, ["knot", "invariant"])
+    print("\nafterwards: \n", accumulated_invariants)
