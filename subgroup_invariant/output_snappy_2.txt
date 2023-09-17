@@ -1,0 +1,57 @@
+Knots to consider:
+ {'K15n991', 'K15n6178', 'K15n10289', 'K14a12820', 'K15n16985', 'K15n32898', 'K13n524', 'K15n62543', 'K15n7313', 'K15a5428', 'K15n632', 'K15a6140', 'K15n145466', 'K15n88591', 'K15a2741', 'K15n25544', 'K15a2680', 'K15n12722', 'K15n8131', 'K13a927', 'K15n6705', 'K15a28597', 'K15n120799', 'K15n23408', 'K15n12491', 'K15n6521', 'K15a784', 'K15n23085', 'K15a1626', 'K15n24664', 'K15n46457', 'K15n60364', 'K15n123366', 'K15n14513', 'K15n30496', 'K14n20925', 'K15a38248', 'K15n43974', 'K15a63530', 'K15n19930', 'K14n17794', 'K15a2575', 'K15n27742', 'K14a9583', 'K15a11841', 'K15n2001', 'K15n23512', 'K15a5367', 'K14a12863', 'K15a5948', 'K14n2067', 'K15n21210', 'K15n124475', 'K15a59750', 'K15n29213', 'K15n93959', 'K15a10904', 'K14n5409', 'K15a6255', 'K15a1833', 'K15n16655', 'K15n6586', 'K15n119283', 'K15n8040', 'K15n9023', 'K13n2527', 'K15n2284', 'K15a30720', 'K15n2855', 'K15a56948', 'K14n14254', 'K15n101402', 'K15a62317', 'K15n8077', 'K15n10542', 'K15n21809', 'K14n13110', 'K14a78', 'K15n3457', 'K15n10217', 'K15a43410', 'K15a61336', 'K15n119991', 'K15n8672', 'K15n16666', 'K15a57452', 'K15n10236', 'K15a4579', 'K15n37007', 'K15n35064', 'K15n19031', 'K15a56849', 'K15a58930', 'K15n2890', 'K15a70536', 'K15n23205', 'K15n6174', 'K15n7728', 'K15n23556', 'K15a2676', 'K15a48333', 'K15a5499', 'K15n12662', 'K15a9146', 'K15n20864', 'K15a49289', 'K15n121436', 'K15a8332', 'K15n130474', 'K15a2519', 'K15a10043', 'K15a3612', 'K15a8017', 'K15n6763', 'K15a1868', 'K15n103488', 'K15a824', 'K15n99768', 'K15n4400', 'K15a8098', 'K15n123003', 'K15n13235', 'K14n2095', 'K14n4919', 'K15n5017', 'K15n122447', 'K15a3007', 'K15a55437', 'K15n26219', 'K15n121830', 'K15n19793', 'K15n22956', 'K15n10095', 'K15n122328', 'K15n15311', 'K15a55773', 'K15a4569', 'K14n176', 'K15a57529', 'K15n23196', 'K15n118773', 'K15a2261', 'K15a55281', 'K15n97480', 'K15n122919', 'K15n125925', 'K15n92162', 'K15n3109', 'K14n20567', 'K15n7602', 'K15n5186', 'K14n4889', 'K15a2523', 'K15a58351', 'K14a1198', 'K15a4591', 'K15a43448', 'K15a60524', 'K15a6859', 'K15a5792', 'K15n23132', 'K15a4425', 'K14n18775', 'K15a42574', 'K15n28827', 'K13a941', 'K14a1380', 'K15a37817', 'K15n9360', 'K15n7498', 'K15n12987', 'K15n10667', 'K15n8141', 'K15n118149', 'K15a57593', 'K15n124513', 'K15n10148', 'K15n38210', 'K14n12095', 'K15a2799', 'K15n74430', 'K15n36963', 'K15n43978', 'K15a25220', 'K15n120773', 'K15n53741', 'K15n26963', 'K14a12985', 'K15a58620', 'K14n652', 'K15n121490', 'K15n42574', 'K15n28366', 'K14n1479', 'K15n89587', 'K15n29359', 'K15a7454', 'K15n39311', 'K15n125910', 'K15n7605', 'K15n9897', 'K15n70710', 'K15n2773', 'K15a9888', 'K15n9627', 'K15n38233', 'K15n22602', 'K15a5416', 'K15a4214', 'K15n130496', 'K15n20458', 'K14n1637', 'K15n34934', 'K15n29036', 'K15n35012', 'K15a3597', 'K15n29360', 'K15a2455', 'K15a59126', 'K15a5959', 'K15n57194', 'K15n27499', 'K15n122927', 'K15a1909', 'K15n58278', 'K15n27296', 'K15n6356', 'K15a59140', 'K15n53264', 'K14n1625', 'K15n2754', 'K15n25164', 'K15n88592', 'K15n4767', 'K15n16651', 'K14n1871', 'K15n10669', 'K15a54994', 'K15a59747', 'K15n12359', 'K15a8163', 'K15n33186', 'K14n5239', 'K14n2958', 'K15n39294', 'K15n12589', 'K15a25950', 'K15n33180', 'K15n25947', 'K15a53593', 'K15n17054', 'K15n93174', 'K15n28458', 'K15a4780', 'K15a9228', 'K15a59745', 'K15a1767', 'K15a10914', 'K14a728', 'K15n31396', 'K15n82157', 'K15a8135', 'K15n80700', 'K13n506', 'K15n109853', 'K15a8243', 'K15n121001', 'K15n13130', 'K15n50753', 'K15n6880', 'K15a70541', 'K15a6312', 'K14a9312', 'K14n1258', 'K15n31674', 'K15n5231', 'K15a28595', 'K15a4121', 'K15n21397', 'K14a1033', 'K15n133306', 'K14n12091', 'K15n7741', 'K15a53254', 'K14n2667', 'K15n33316', 'K14a2663', 'K15n11663', 'K15n8673', 'K15n50755', 'K15a58457', 'K15n22996', 'K15n7861', 'K15n12729', 'K15n35061', 'K15a56014', 'K15n440', 'K15n17846', 'K15a10035', 'K15n4278', 'K15n110363', 'K15a56850', 'K15n10606', 'K15a2213', 'K15a57943', 'K15n118805', 'K15n37031', 'K15a5127', 'K15n21059', 'K15a3830', 'K15n12373', 'K15a6524', 'K15n55323', 'K15a4099', 'K15n135852', 'K15a6175', 'K14a13551', 'K15n4830', 'K15n125917', 'K15n23450', 'K15a55567', 'K15n8749', 'K15n15117', 'K15n95548', 'K14n307', 'K15n6361', 'K15n23984', 'K15a42519', 'K15n35029', 'K15a58067', 'K15a1856', 'K15n60338', 'K15n122107', 'K15n6761', 'K14a1045', 'K14a13099', 'K15n23592', 'K15n23440', 'K15a11895', 'K15n19556', 'K15n120776', 'K15a3685', 'K15n10818', 'K15n15234', 'K15n5482', 'K15n8624', 'K15n62459', 'K15n16953', 'K15n7511', 'K15n33243', 'K15n22331', 'K13n1021', 'K15n50795', 'K15a59424', 'K15a58267', 'K15n23534', 'K13n348', 'K15a47159', 'K15n9684', 'K15n1876', 'K15a551', 'K15n130833', 'K15a2394', 'K15a60465', 'K15n22332', 'K15n13643', 'K15n29033', 'K15a57106', 'K15n533', 'K15a675', 'K15n4592', 'K15n22951', 'K15n13545', 'K15a48346', 'K15a47706', 'K15n101794', 'K15a696', 'K15n29187', 'K15n6968', 'K15a53374', 'K15n8828', 'K15n53529', 'K15n33915', 'K15n36971', 'K15n21064', 'K15n10549', 'K15n30591', 'K15n22244', 'K15a7358', 'K14n973', 'K15a8347', 'K15n95566', 'K15a7627', 'K14n1680', 'K15a55652', 'K15n6030', 'K15a62316', 'K15a2852', 'K15a2398', 'K15n28323', 'K15n34987', 'K15a57621', 'K15a2545', 'K15n12883', 'K15n121538', 'K15n24968', 'K15n983', 'K13n1264', 'K15a6845', 'K15n118123', 'K15a5482', 'K15n21701', 'K15n3151', 'K15a4127', 'K15n20931', 'K14a2664', 'K15a2618', 'K15a58811', 'K15n9899', 'K15n28913', 'K15n26674', 'K14n3842', 'K15a1852', 'K15n12564', 'K15a58400', 'K15n120796', 'K15a796', 'K15n125806', 'K15n10612', 'K14n660', 'K15n21555', 'K15n29442', 'K15a2026', 'K15a58355', 'K15n2889', 'K15a8265', 'K15n13360', 'K15n122294', 'K15n12505', 'K15a58647', 'K15a57186', 'K15n9379', 'K15n24304', 'K15n50797', 'K15a57903', 'K15n107824', 'K15a59588', 'K14n2585', 'K15a6643', 'K13n572', 'K15a54102', 'K15a51101', 'K15n33979', 'K15n52698', 'K15n28318', 'K15a54960', 'K15a55999', 'K15a3961', 'K14n2154', 'K14a105', 'K15n11023', 'K15a57757', 'K15n35014', 'K15n21215', 'K12n309', 'K15n123011', 'K15n4483', 'K15n35071', 'K15n2774', 'K15n19188', 'K15n13090', 'K15n74182', 'K15n149696', 'K13n310', 'K15a5497', 'K15a59762', 'K14n18412', 'K15a18488', 'K15n9510', 'K14a493', 'K15a7459', 'K15n28404', 'K15n53176', 'K13n1254', 'K15a4456', 'K15a58974', 'K15n9832', 'K15n32993', 'K15a444', 'K11n49', 'K15n6355', 'K15n7821', 'K15n1111', 'K15a59582', 'K14a13034', 'K15a564', 'K15n5097', 'K15n17460', 'K15a54098', 'K15a58141', 'K15n9476', 'K15a18853', 'K15n21431', 'K15n10458'}
+
+before: 
+ {'K15n9379': {'num_covers_deg_8': 13}, 'K14n2585': {'num_covers_deg_8': 12}, 'K15n30496': {'num_covers_deg_8': 10}, 'K15n46457': {'num_covers_deg_8': 13}, 'K15n12373': {'num_covers_deg_8': 6}, 'K15n2889': {'num_covers_deg_8': 7}, 'K15n118123': {'num_covers_deg_8': 22}, 'K15n42574': {'num_covers_deg_8': 9}, 'K15n122447': {'num_covers_deg_8': 10}, 'K15n15234': {'num_covers_deg_8': 16}, 'K15n35012': {'num_covers_deg_8': 1}, 'K15n13643': {'num_covers_deg_8': 6}, 'K15n43978': {'num_covers_deg_8': 10}, 'K15a564': {'num_covers_deg_8': 2}, 'K15n93174': {'num_covers_deg_8': 12}, 'K15n22331': {'num_covers_deg_8': 30}, 'K15n23556': {'num_covers_deg_8': 9}, 'K15a59747': {'num_covers_deg_8': 8}, 'K15n19556': {'num_covers_deg_8': 4}, 'K15n12564': {'num_covers_deg_8': 14}, 'K15n119283': {'num_covers_deg_8': 6}, 'K14a12863': {'num_covers_deg_8': 5}, 'K15a53593': {'num_covers_deg_8': 9}, 'K15a3597': {'num_covers_deg_8': 7}, 'K15n50795': {'num_covers_deg_8': 4}, 'K15a1626': {'num_covers_deg_8': 12}, 'K15n121001': {'num_covers_deg_8': 3}, 'K15a6859': {'num_covers_deg_8': 5}}
+[K15n991] Start computation for deg 8 covers of K15n991(0,1)
+[K15n6178] Start computation for deg 8 covers of K15n6178(0,1)
+[K15n10289] Start computation for deg 8 covers of K15n10289(0,1)
+[K14a12820] Start computation for deg 8 covers of K14a12820(0,1)
+[K15n16985] Start computation for deg 8 covers of K15n16985(0,1)
+[K15n32898] Start computation for deg 8 covers of K15n32898(0,1)
+[K13n524] Start computation for deg 8 covers of K13n524(0,1)
+[K15n62543] Start computation for deg 8 covers of K15n62543(0,1)
+[K15n7313] Start computation for deg 8 covers of K15n7313(0,1)
+[K15a5428] Start computation for deg 8 covers of K15a5428(0,1)
+[K15n632] Start computation for deg 8 covers of K15n632(0,1)
+[K15a6140] Start computation for deg 8 covers of K15a6140(0,1)
+[K15n145466] Start computation for deg 8 covers of K15n145466(0,1)
+[K15n88591] Start computation for deg 8 covers of K15n88591(0,1)
+[K15a2741] Start computation for deg 8 covers of K15a2741(0,1)
+[K15n25544] Start computation for deg 8 covers of K15n25544(0,1)
+[K15n88591] End: Num deg 8 covers of K15n88591(0,1) = 442
+[K15a2680] Start computation for deg 8 covers of K15a2680(0,1)
+[K15n32898] End: Num deg 8 covers of K15n32898(0,1) = 5
+[K15n12722] Start computation for deg 8 covers of K15n12722(0,1)
+[K15a5428] End: Num deg 8 covers of K15a5428(0,1) = 19
+[K15n8131] Start computation for deg 8 covers of K15n8131(0,1)
+[K15n62543] End: Num deg 8 covers of K15n62543(0,1) = 10
+[K13a927] Start computation for deg 8 covers of K13a927(0,1)
+[K15n6178] End: Num deg 8 covers of K15n6178(0,1) = 11
+[K15n6705] Start computation for deg 8 covers of K15n6705(0,1)
+[K15n25544] End: Num deg 8 covers of K15n25544(0,1) = 12
+[K15a28597] Start computation for deg 8 covers of K15a28597(0,1)
+[K15n145466] End: Num deg 8 covers of K15n145466(0,1) = 7
+[K15n120799] Start computation for deg 8 covers of K15n120799(0,1)
+[K14a12820] End: Num deg 8 covers of K14a12820(0,1) = 1
+[K15n23408] Start computation for deg 8 covers of K15n23408(0,1)
+[K15n632] End: Num deg 8 covers of K15n632(0,1) = 10
+[K15n12491] Start computation for deg 8 covers of K15n12491(0,1)
+[K15n12722] End: Num deg 8 covers of K15n12722(0,1) = 18
+[K15n6521] Start computation for deg 8 covers of K15n6521(0,1)
+[K13a927] End: Num deg 8 covers of K13a927(0,1) = 5
+[K15a784] Start computation for deg 8 covers of K15a784(0,1)
+[K15n23408] End: Num deg 8 covers of K15n23408(0,1) = 7
+[K15n23085] Start computation for deg 8 covers of K15n23085(0,1)
+[K15n120799] End: Num deg 8 covers of K15n120799(0,1) = 16
+[K15n24664] Start computation for deg 8 covers of K15n24664(0,1)
+[K15a784] End: Num deg 8 covers of K15a784(0,1) = 8
+[K15n60364] Start computation for deg 8 covers of K15n60364(0,1)
+[K15n24664] End: Num deg 8 covers of K15n24664(0,1) = 3
+[K15n123366] Start computation for deg 8 covers of K15n123366(0,1)
+[K15n60364] End: Num deg 8 covers of K15n60364(0,1) = 13
+[K15n14513] Start computation for deg 8 covers of K15n14513(0,1)
+[K15n14513] End: Num deg 8 covers of K15n14513(0,1) = 9
+[K14n20925] Start computation for deg 8 covers of K14n20925(0,1)
+[K14n20925] End: Num deg 8 covers of K14n20925(0,1) = 2
+[K15a38248] Start computation for deg 8 covers of K15a38248(0,1)

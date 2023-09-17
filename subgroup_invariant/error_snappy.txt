@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/home/weiss/Desktop/lowcrossing_dehn/subgroup_invariant/snappy_distinguish_remaining_pairs.py", line 199, in <module>
+    compute_covers_in_parallel(knots, computed_invariants_csv, deg=deg, num_workers=num_workers, debug_level=debug_level)
+  File "/home/weiss/Desktop/lowcrossing_dehn/subgroup_invariant/snappy_distinguish_remaining_pairs.py", line 117, in compute_covers_in_parallel
+    with ProcessPool(max_workers=num_workers) as pool:
+  File "/home/weiss/.local/lib/python3.10/site-packages/pebble/pool/base_pool.py", line 44, in __exit__
+    self.join()
+  File "/home/weiss/.local/lib/python3.10/site-packages/pebble/pool/base_pool.py", line 72, in join
+    self._wait_queue_depletion(timeout)
+  File "/home/weiss/.local/lib/python3.10/site-packages/pebble/pool/base_pool.py", line 86, in _wait_queue_depletion
+    time.sleep(SLEEP_UNIT)
+  File "src/cysignals/signals.pyx", line 310, in cysignals.signals.python_check_interrupt
+KeyboardInterrupt

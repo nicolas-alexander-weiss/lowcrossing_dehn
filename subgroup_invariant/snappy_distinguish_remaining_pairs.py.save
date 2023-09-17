@@ -117,12 +117,10 @@ def compute_covers_in_parallel(knots, csv_invariants_list, deg, num_workers, deb
         lock = manager.Lock()
         with ProcessPool(max_workers=num_workers) as pool:
             for k in knots:
-                if k in ["K15n21809"]:
-                    continue
                 if (k not in already_computed_invariants.keys() 
                         or "num_covers_deg_{}".format(deg) not in already_computed_invariants[k].keys()):
 
-                    future = pool.schedule(compute_covers, args=(k, csv_invariants_list, deg, debug_level, lock), timeout=timeout)
+                    future = pool.schedule(compute_covers, args=(k, csv_invariants_list, deg, debug_level, lock), timeout=)
                     future.add_done_callback(std_callback)
 
 
@@ -183,8 +181,9 @@ def get_knots_to_compute_in_order(previous_groups_csv, columns):
 if __name__ == "__main__":
 
     debug_level = 2
-    num_workers = 450
-    timeout=None
+    num_workers = 10
+    timeout = 10
+
     deg=8
 
     total_start_time = datetime.today().now()
