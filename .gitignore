@@ -2,9 +2,7 @@
 burton_knots/
 
 # Ignore the 20 prime knot data. Except their results.
-20_crossings/
-!20_crossings/compare_20_with_5.sage
-!20_crossings/*_matches.csv
+compare_20_crossings/knot_data/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
