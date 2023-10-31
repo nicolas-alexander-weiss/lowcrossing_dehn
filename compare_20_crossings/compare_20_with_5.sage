@@ -38,7 +38,7 @@ def add_to_list(csv_file_path, row, columns, delimiter=","):
         writer = csv.DictWriter(file, fieldnames=columns, delimiter=delimiter)
         writer.writerow(row)
 
-def compare(knot_code, filename, target_filename, id, interval, lock=None):
+def compare(knot_code, filename, target_filename, id, info_interval, lock=None):
     """
     Builds the knot specified by the alphabetical DT code, e.g.
 
@@ -67,15 +67,17 @@ def compare(knot_code, filename, target_filename, id, interval, lock=None):
         if lock != None:
             lock.release()
 
-    if id % interval == 0:
+    if id % info_interval == 0:
         print("[{}] Processed knot {} with id {}".format(filename, knot_code, id))
         sys.stdout.flush()
 
 
 
-def compare_file(filename, target_filename, info_interval, lock):
+def compare_file(filename, target_filename, info_interval, lock, skip_n_knots=0):
     """
         Goes through the knots specified in the file. Stores matches to the target_file.
+
+        If skip_n_knots is specified, it skips the first n knots.
     """
 
     R.<t> = QQ['t'] 
@@ -83,12 +85,21 @@ def compare_file(filename, target_filename, info_interval, lock):
 
     count = 0
 
-    print("[{}] Starting.".format(filename))
+    print("[{}] Starting. Start count specified as: {}".format(filename, skip_n_knots))
     sys.stdout.flush()
 
     with open(filename) as knot_file:
         for line in knot_file:
             knot_code = line.rstrip()
+
+            if (count < skip_n_knots):
+                # Skip the first n knots.
+                count += 1
+                continue
+
+            if (count == skip_n_knots):
+                print("[{}] Starting computation with knot {} at count {}".format(filename, knot_code, count))
+                sys.stdout.flush()
 
             if count % info_interval == 0:
                 print("[{}] Processing knot {} with count {}".format(filename, knot_code, count))
@@ -119,7 +130,12 @@ def compare_file(filename, target_filename, info_interval, lock):
 if __name__ == "__main__":
     num_workers = 32
 
-    filenames = ["nonhyp_20", "nonhyp_3_20_all", "alt_20", "nonalt_hyp_20"] # The files have to be downloaded separetly from MT's website.
+    # Rmk. updated the file list since the other ones have been already processed.
+    filenames = ["nonalt_hyp_20"] # ["nonhyp_20", "nonhyp_3_20_all", "alt_20", "nonalt_hyp_20"] # The files have to be downloaded separetly from MT's website.
+
+    start_counts = {
+        "nonalt_hyp_20" : 28000000
+    }
 
     info_interval = 10000
 
@@ -135,7 +151,7 @@ if __name__ == "__main__":
             lock = manager.Lock()
             with ProcessPool(max_workers=num_workers) as pool:
                 for i in range(0,32):
-                    future = pool.schedule(compare_file, args=(filename + "_x{:02d}".format(i), target_filename, info_interval, lock))
+                    future = pool.schedule(compare_file, args=(filename + "_x{:02d}".format(i), target_filename, info_interval, lock, start_counts[filename]))
                     future.add_done_callback(std_callback)
 
         print("[{}] Done.".format(filename))
