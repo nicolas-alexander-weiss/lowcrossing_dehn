@@ -94,6 +94,10 @@ def compare_file(filename, target_filename, info_interval, lock, skip_n_knots=0)
 
             if (count < skip_n_knots):
                 # Skip the first n knots.
+                if count % (10*1000*1000) == 0:
+                    print("[{}] Skipping initial knots; currently {} with count {}".format(filename, knot_code, count))
+                    sys.stdout.flush()
+
                 count += 1
                 continue
 
@@ -131,7 +135,8 @@ if __name__ == "__main__":
     num_workers = 32
 
     # Rmk. updated the file list since the other ones have been already processed.
-    filenames = ["nonalt_hyp_20"] # ["nonhyp_20", "nonhyp_3_20_all", "alt_20", "nonalt_hyp_20"] # The files have to be downloaded separetly from MT's website.
+    filenames = ["nonalt_hyp_20"] 
+    # ["nonhyp_20", "nonhyp_3_20_all", "alt_20", "nonalt_hyp_20"] # The files have to be downloaded separetly from MT's website.
 
     start_counts = {
         "nonalt_hyp_20" : 28000000
@@ -151,7 +156,7 @@ if __name__ == "__main__":
             lock = manager.Lock()
             with ProcessPool(max_workers=num_workers) as pool:
                 for i in range(0,32):
-                    future = pool.schedule(compare_file, args=(filename + "_x{:02d}".format(i), target_filename, info_interval, lock, start_counts[filename]))
+                    future = pool.schedule(compare_file, args=("knot_data/" + filename + "_x{:02d}".format(i), target_filename, info_interval, lock, start_counts[filename]))
                     future.add_done_callback(std_callback)
 
         print("[{}] Done.".format(filename))
