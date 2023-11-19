@@ -74,14 +74,11 @@ crossing number 16, 17, 18, or 19 and a corresponding knot of crossing number 6,
  
  [['K15n19499',"JSJ[('SFSpace', 'SFS [D: (2,1) (2,-1)]'), ('hyperbolic', 'm032')]"],
  ['K15n153789',"JSJ[('SFSpace', 'SFS [D: (2,1) (2,-1)]'), ('hyperbolic', 'm032')]"]]]
- 
-(6) We have 250 groups of knots with the same Alexander-polynomials such that their 0-fillings are hyperbolic and share the same volume and such that their knot Floer homology invariants agree (fiberedness status, genus, and rank in Alexander grading=genus) and the subgroups of their fundamental groups agree up to order 7. The results are in the file:
 
-groups_of_same_volume_alex_knotFloer_coversdeg7_subgrpIdx6.csv
 
-(7) All knots with at most 15 crossings are such that: K(0,1)!=(mK)(0,1).
+(6) All knots with at most 15 crossings are such that: K(0,1)!=(mK)(0,1).
 
-(8) We also compared the census knots with knots of at most 15 crossings:
+(7) We also compared the census knots with knots of at most 15 crossings:
 We found 3 pairs with hyperbolic equal 0-surgeries: 
 
 [['t12270', 'K13n2527'], ['t11462', 'K14n3155'], ['o9_40081', 'K15n94464']]
@@ -95,7 +92,3 @@ and 3 pairs with non-hyperbolic equal 0-surgeries:
 [['o9_31828', "JSJ([('SFSpace', 'M/n2 x~ S1'), ('hyperbolic', 'm032')])"],
  ['K15n19499',   "JSJ[('SFSpace', 'SFS [D: (2,1) (2,-1)]'), ('hyperbolic', 'm032')]"]]]
 
-
-## TO DO:
-- Distinguish the last 250 groups. (Here we can use higher index subgroups in SnapPy or other programs and Turaev--Viro invariants using regina.)
-- Show that 5_1 has no partner with 20 crossings. (Here the idea is to get the list of all 20 crossing knots from Burton and check which of these have the same Alexander polynomial and then compare the volume.)
