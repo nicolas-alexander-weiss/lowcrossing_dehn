@@ -13,7 +13,7 @@ Furthermore, an example of two knots with the same 0-filling was found in [Examp
 Thus, the minimum such sum must lie in the interval [11, 26].
 
 In this repository, we want to determine whether an example of a better pairing can be found between a knot of 
-crossing number 16, 17, 18, or 19 and a corresponding knot of crossing number 6, 7, 8 or 9 (respectively).
+crossing number 16, 17, 18, 19, or 20 and a corresponding knot of crossing number 5, 6, 7, 8, or 9 (respectively).
 
 ## Procedure
 1. Group the low and higher crossing knots by the Alexander polynomial.
