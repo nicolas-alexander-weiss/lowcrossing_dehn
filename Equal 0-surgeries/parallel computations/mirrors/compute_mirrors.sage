@@ -209,7 +209,7 @@ def check_if_zs_isotopic_to_mirror_parallel(to_be_computed, outfile, num_workers
         lock = manager.Lock()
         with ProcessPool(max_workers=num_workers) as pool:
             
-            chunk_size = int(len(knots) / num_workers) + 1
+            chunk_size = int(len(to_be_computed) / num_workers) + 1
             for idx, start in enumerate(range(0, len(to_be_computed), chunk_size)):
                 chunk = to_be_computed[start:start + chunk_size]
 
