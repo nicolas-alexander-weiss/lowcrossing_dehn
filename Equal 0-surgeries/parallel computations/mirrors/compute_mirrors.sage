@@ -7,6 +7,8 @@ import sys
 import os
 import snappy
 import csv
+
+import signal
 import time
 
 
@@ -151,8 +153,12 @@ def better_symmetry_group(M,index=100):
 # Check if knots are isomorphic
 #
     
+# TIMEOUT SIGNAL
+def handle_timeout(signum, frame):
+    raise TimeoutError
 
-def check_if_zs_isotopic_to_mirror_list(knots, outfile, lock=None, worker_idx=-1):
+
+def check_if_zs_isotopic_to_mirror_list(knots, outfile, lock=None, worker_idx=-1, timeout=-1):
     """
     Processes a list of knots.
     """
@@ -162,7 +168,27 @@ def check_if_zs_isotopic_to_mirror_list(knots, outfile, lock=None, worker_idx=-1
         if idx % 50 == 0:
             print("[WORKER #{}] Processed {} knots.".format(worker_idx, idx))
             sys.stdout.flush()
-        check_if_zs_isotopic_to_mirror(knot, outfile, lock)
+
+        # Set an alarm to trigger a timeout error
+        if timeout > 0:
+            signal.signal(signal.SIGALRM, handle_timeout)
+            signal.alarm(timeout)
+
+        try:
+            check_if_zs_isotopic_to_mirror(knot, outfile, lock)
+        except TimeoutError:
+            # acquire the lock
+            if lock != None:
+                lock.acquire()
+            add_to_list("timed_out_knots.csv", {"knot":knot}, columns=["knot"])
+            # print("[WORKER #{}] Timeout after {} sec for knot {}".format(worker_idx, timeout, knot))
+            # sys.stdout.flush()
+            # release the lock
+            if lock != None:
+                lock.release()
+        finally:
+            # Cancel the alarm.
+            signal.alarm(0) 
         
 
 def check_if_zs_isotopic_to_mirror(knot, outfile, lock=None):
@@ -198,7 +224,7 @@ def check_if_zs_isotopic_to_mirror(knot, outfile, lock=None):
     if lock != None:
         lock.release()
 
-def check_if_zs_isotopic_to_mirror_parallel(to_be_computed, outfile, num_workers):
+def check_if_zs_isotopic_to_mirror_parallel(to_be_computed, outfile, num_workers, timeout):
     """
         Feeds a process pool with all the knots. Makes sure that its not too many processes as once,
         so to not bloat up the RAM.
@@ -214,7 +240,7 @@ def check_if_zs_isotopic_to_mirror_parallel(to_be_computed, outfile, num_workers
                 chunk = to_be_computed[start:start + chunk_size]
 
                 # Then add to the pool
-                future = pool.schedule(check_if_zs_isotopic_to_mirror_list, args=(chunk, outfile, lock, idx))
+                future = pool.schedule(check_if_zs_isotopic_to_mirror_list, args=(chunk, outfile, lock, idx, timeout))
                 future.add_done_callback(std_callback)
     
     print('[INFO] Finished.\n Total time taken: %s minutes ' % ((time.time() - start_time)/60)) 
@@ -236,7 +262,7 @@ if __name__ == "__main__":
 
     # Num of parallel processes:
     num_workers = 32 ## Reduce this to the number of cores on the server.
-    # timeout = 60 # 60 sec  // See how things are going if just letting run one for each core.
+    timeout = 60 # 60 sec  // See how things are going if just letting run one for each core.
 
     # load the knots from the file.
     print("[INFO] Loading the knots in question...")
@@ -262,6 +288,6 @@ if __name__ == "__main__":
     # start computation
     print("[INFO] Starting the computation.")
     sys.stdout.flush()
-    check_if_zs_isotopic_to_mirror_parallel(left_to_be_computed, csv_outpath, num_workers)
+    check_if_zs_isotopic_to_mirror_parallel(left_to_be_computed, csv_outpath, num_workers, timeout)
 
     # RMK: WOULD BE NICE TO PRINT THE TIMED OUT KNOTS UPON ERROR.
