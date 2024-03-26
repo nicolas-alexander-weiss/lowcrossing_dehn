@@ -259,6 +259,14 @@ if __name__ == "__main__":
             writer = csv.DictWriter(outfile, ["knot", "symmetry_group", "verified", "amphichiral"])
             writer.writeheader()
 
+    # File for the timeouts:
+    csv_timed_out = "timed_out_knots.csv"
+    if not os.path.isfile(csv_outpath):
+        # Create the heading if file doesn't exist yet.
+        with open(csv_timed_out, "w") as outfile:
+            writer = csv.DictWriter(outfile, ["knot"])
+            writer.writeheader()
+
 
     # Num of parallel processes:
     num_workers = 32 ## Reduce this to the number of cores on the server.
@@ -279,8 +287,15 @@ if __name__ == "__main__":
         for row in reader:
             already_computed.append(row["knot"])
 
+    # Timed out previously:
+    timed_out = []
+    with open(csv_timed_out, "r") as infile:
+        reader = csv.DictReader(infile, ["knot"])
+        for row in reader:
+            timed_out.append(row["knot"])
+
     # Left to be computed
-    left_to_be_computed = [k for k in knots if k not in already_computed]
+    left_to_be_computed = [k for k in knots if (k not in already_computed) and (k not in timed_out)]
     print("[INFO] {} knots left to be computed.".format(len(left_to_be_computed)))
 
     #####
@@ -290,4 +305,11 @@ if __name__ == "__main__":
     sys.stdout.flush()
     check_if_zs_isotopic_to_mirror_parallel(left_to_be_computed, csv_outpath, num_workers, timeout)
 
-    # RMK: WOULD BE NICE TO PRINT THE TIMED OUT KNOTS UPON ERROR.
+    ####
+    # Print number of knots timed out:
+    timed_out = []
+    with open(csv_timed_out, "r") as infile:
+        reader = csv.DictReader(infile, ["knot"])
+        for row in reader:
+            timed_out.append(row["knot"])
+    print("[INFO] Number of timed out (after {} sec) knots: {}".format(timeout, len(timed_out)))
