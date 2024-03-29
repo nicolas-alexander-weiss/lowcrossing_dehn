@@ -241,7 +241,7 @@ def check_if_zs_isotopic_to_mirror_parallel(to_be_computed, outfile, num_workers
 
                 # Then add to the pool
                 future = pool.schedule(check_if_zs_isotopic_to_mirror_list, args=(chunk, outfile, lock, idx, timeout))
-                future.add_done_callback(std_callback)
+                # future.add_done_callback(std_callback)
     
     print('[INFO] Finished.\n Total time taken: %s minutes ' % ((time.time() - start_time)/60)) 
     sys.stdout.flush()
