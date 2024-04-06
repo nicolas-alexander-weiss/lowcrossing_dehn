@@ -249,7 +249,7 @@ def check_if_zs_isotopic_to_mirror_parallel(to_be_computed, outfile, num_workers
 
 if __name__ == "__main__":
     # File of knots to compute:
-    csv_inpath = "../../vanishing_signature_hyp.csv"
+    csv_inpath = "timed_out_knots_1min.csv"
     # File for outputs:
     csv_outpath = "results_sz_isotopic_to_mirror.csv"
 
@@ -260,7 +260,7 @@ if __name__ == "__main__":
             writer.writeheader()
 
     # File for the timeouts:
-    csv_timed_out = "timed_out_knots.csv"
+    csv_timed_out = "timed_out_knots_5min.csv"
     if not os.path.isfile(csv_outpath):
         # Create the heading if file doesn't exist yet.
         with open(csv_timed_out, "w") as outfile:
@@ -270,7 +270,7 @@ if __name__ == "__main__":
 
     # Num of parallel processes:
     num_workers = 32 ## Reduce this to the number of cores on the server.
-    timeout = 60 # 60 sec  // See how things are going if just letting run one for each core.
+    timeout = 300 #   // See how things are going if just letting run one for each core.
 
     # load the knots from the file.
     print("[INFO] Loading the knots in question...")
@@ -301,10 +301,10 @@ if __name__ == "__main__":
     #####
 
     # start computation
-    # print("[INFO] Starting the computation.")
-    # sys.stdout.flush()
+    print("[INFO] Starting the computation.")
+    sys.stdout.flush()
     # Changed to list computation in the end.
-    # check_if_zs_isotopic_to_mirror_list(left_to_be_computed, csv_outpath, timeout=60)
+    check_if_zs_isotopic_to_mirror_list(left_to_be_computed, csv_outpath, timeout=60)
 
     ####
     # Print number of knots timed out:
@@ -315,6 +315,3 @@ if __name__ == "__main__":
             timed_out.append(row["knot"])
     print("[INFO] Number of timed out (after {} sec) knots: {}".format(timeout, len(timed_out)))
 
-    ### Also add the left over knots.
-    for knot in left_to_be_computed:
-        add_to_list("timed_out_knots.csv", {"knot":knot}, columns=["knot"])
