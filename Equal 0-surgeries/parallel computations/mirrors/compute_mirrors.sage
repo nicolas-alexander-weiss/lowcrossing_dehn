@@ -165,7 +165,7 @@ def check_if_zs_isotopic_to_mirror_list(knots, outfile, lock=None, worker_idx=-1
     print("[WORKER #{}] Started work.".format(worker_idx)) 
 
     for idx, knot in enumerate(knots):
-        if idx % 50 == 0:
+        if idx % 1 == 0:
             print("[WORKER #{}] Processed {} knots.".format(worker_idx, idx))
             sys.stdout.flush()
 
@@ -301,9 +301,10 @@ if __name__ == "__main__":
     #####
 
     # start computation
-    print("[INFO] Starting the computation.")
-    sys.stdout.flush()
-    check_if_zs_isotopic_to_mirror_parallel(left_to_be_computed, csv_outpath, num_workers, timeout)
+    # print("[INFO] Starting the computation.")
+    # sys.stdout.flush()
+    # Changed to list computation in the end.
+    # check_if_zs_isotopic_to_mirror_list(left_to_be_computed, csv_outpath, timeout=60)
 
     ####
     # Print number of knots timed out:
@@ -313,3 +314,7 @@ if __name__ == "__main__":
         for row in reader:
             timed_out.append(row["knot"])
     print("[INFO] Number of timed out (after {} sec) knots: {}".format(timeout, len(timed_out)))
+
+    ### Also add the left over knots.
+    for knot in left_to_be_computed:
+        add_to_list("timed_out_knots.csv", {"knot":knot}, columns=["knot"])
