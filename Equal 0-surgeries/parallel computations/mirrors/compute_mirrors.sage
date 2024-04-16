@@ -1,4 +1,5 @@
 
+from contextlib import nullcontext
 
 import multiprocessing
 from pebble import ProcessPool
@@ -9,7 +10,14 @@ import snappy
 import csv
 
 import signal
+from datetime import datetime
 import time
+
+### Some preset datetime format:
+def get_timestamp():
+    now = datetime.now()
+    return now.strftime("%Y-%m-%d, %H:%M:%S")
+
 
 
 ###### Call back functions:
@@ -44,7 +52,7 @@ def all_positive(manifold):
     '''
     return manifold.solution_type() == 'all tetrahedra positively oriented'
 
-def find_positive_triangulations(manifold,number=1,tries=100):
+def find_positive_triangulations(manifold,number=1,tries=100, infofile=None):
     '''
     Searches for one triangulation with a positive solution type.
     (Or if number is set to a different value also for different such triangulations.)
@@ -88,12 +96,16 @@ def find_positive_triangulations(manifold,number=1,tries=100):
 
 ### SYMMETRY GROUP
 
-def better_symmetry_group(M,index=100):
+def better_symmetry_group(M,index=100, infofile=None):
     '''
     This function computes the symmetry group of the input manifold. 
     If the second entry is True it is proven to be the symmetry group.
     '''
+    if infofile:
+        print("{}: Find Pos Triangulation (Section 1)".format(get_timestamp()), file=infofile)
+        infofile.flush()
     pos_triang=find_positive_triangulations(M,tries=index)
+    
     if pos_triang==[]:
         full=False
         randomizeCount=0
@@ -111,6 +123,9 @@ def better_symmetry_group(M,index=100):
         except NameError:
             return ('unclear',False)
     X=pos_triang[0]
+    if infofile:
+        print("{}: Found Positive Triangulation: {}".format(get_timestamp(), pos_triang), file=infofile)
+        infofile.flush()
     full=False
     randomizeCount=0
     while randomizeCount<index and full==False:
@@ -124,6 +139,11 @@ def better_symmetry_group(M,index=100):
             randomizeCount=randomizeCount+1
     if full==True:
         return (S,full)
+    
+    if infofile:
+        print("{}: Find Pos Triangulation (Section 2)".format(get_timestamp()), file=infofile)
+        infofile.flush()
+
     pos_triang=find_positive_triangulations(M,number=index,tries=index)
     if pos_triang==[]:
         try:
@@ -158,14 +178,19 @@ def handle_timeout(signum, frame):
     raise TimeoutError
 
 
-def check_if_zs_isotopic_to_mirror_list(knots, outfile, lock=None, worker_idx=-1, timeout=-1):
+def check_if_zs_isotopic_to_mirror_list(knots, outfile, lock=None, worker_idx=-1, timeout=-1, timed_out_file=None, debugging=True):
     """
     Processes a list of knots.
     """
+    # Adding a debug file to print output to.
+    if debugging:
+        debug_file = "output_worker" + str(worker_idx) + ".txt"
+
+    #
     print("[WORKER #{}] Started work.".format(worker_idx)) 
 
     for idx, knot in enumerate(knots):
-        if idx % 1 == 0:
+        if idx % 5 == 0:
             print("[WORKER #{}] Processed {} knots.".format(worker_idx, idx))
             sys.stdout.flush()
 
@@ -175,12 +200,17 @@ def check_if_zs_isotopic_to_mirror_list(knots, outfile, lock=None, worker_idx=-1
             signal.alarm(timeout)
 
         try:
-            check_if_zs_isotopic_to_mirror(knot, outfile, lock)
+            with open(debug_file, "a") if debugging else nullcontext(sys.stdout) as infofile:
+                check_if_zs_isotopic_to_mirror(knot, outfile, lock, infofile)
         except TimeoutError:
             # acquire the lock
             if lock != None:
                 lock.acquire()
-            add_to_list("timed_out_knots.csv", {"knot":knot}, columns=["knot"])
+            add_to_list(timed_out_file, {"knot":knot}, columns=["knot"])
+            if debugging:
+                with open(debug_file, "a") as infofile:
+                    print("{}: Knot {} Timed out.\n".format(get_timestamp(), knot), file=infofile)
+                    infofile.flush()
             # print("[WORKER #{}] Timeout after {} sec for knot {}".format(worker_idx, timeout, knot))
             # sys.stdout.flush()
             # release the lock
@@ -191,7 +221,7 @@ def check_if_zs_isotopic_to_mirror_list(knots, outfile, lock=None, worker_idx=-1
             signal.alarm(0) 
         
 
-def check_if_zs_isotopic_to_mirror(knot, outfile, lock=None):
+def check_if_zs_isotopic_to_mirror(knot, outfile, lock=None, infofile=None):
     """ Checks if the the zero-surgery (sz) has an orientation reversing symmetry.
     (I.e. the symmetry group is amphichiral.)
     
@@ -199,9 +229,19 @@ def check_if_zs_isotopic_to_mirror(knot, outfile, lock=None):
 
     The lock is used, so that no two processes write at the same time.
     """
+    if infofile:
+        print("---\n{}: Computing knot: {}".format(get_timestamp(),knot), file=infofile)
+        infofile.flush()
+
     K=snappy.Manifold(knot)
     K.dehn_fill((0,1))
-    [S,w]=better_symmetry_group(K,index=100) # w returns whether the symmetry group S is verified.
+    if infofile:
+        print("{}: Done the Dehn filling (0,1), now running better_symmetry_group.".format(get_timestamp()), file=infofile)
+        infofile.flush()
+    [S,w]=better_symmetry_group(K,index=100, infofile=infofile) # w returns whether the symmetry group S is verified.
+    if infofile:
+        print("{}: Computed Symmetry group: [S,w] = {}".format(get_timestamp(), [S,w]), file=infofile)
+        infofile.flush()
     amphichiral = None
     
       # Can directly print this. to a file: If w true, then S,w, S.amphichiral. || Else s,w,None
@@ -209,6 +249,9 @@ def check_if_zs_isotopic_to_mirror(knot, outfile, lock=None):
     # Run in parallel.
     # Zeitlimit: 1min pro Knoten.
     if w==True:
+        if infofile:
+            print("{}: Since verified, testing for amphichirality".format(get_timestamp()), file=infofile)
+            infofile.flush()
         amphichiral = S.is_amphicheiral()
 
     # acquire the lock
@@ -217,6 +260,10 @@ def check_if_zs_isotopic_to_mirror(knot, outfile, lock=None):
 
     result_row = {"knot":knot, "symmetry_group":S, "verified":w, "amphichiral":amphichiral}
 
+    if infofile:
+        print("{}: Result: {}".format(get_timestamp(), result_row), file=infofile)
+        infofile.flush()
+
     add_to_list(outfile, result_row, columns=["knot", "symmetry_group", "verified", "amphichiral"])
     # print("[INFO] Computed: {}".format(result_row))
 
@@ -224,7 +271,7 @@ def check_if_zs_isotopic_to_mirror(knot, outfile, lock=None):
     if lock != None:
         lock.release()
 
-def check_if_zs_isotopic_to_mirror_parallel(to_be_computed, outfile, num_workers, timeout):
+def check_if_zs_isotopic_to_mirror_parallel(to_be_computed, outfile, num_workers, timeout, timed_out_file):
     """
         Feeds a process pool with all the knots. Makes sure that its not too many processes as once,
         so to not bloat up the RAM.
@@ -237,11 +284,14 @@ def check_if_zs_isotopic_to_mirror_parallel(to_be_computed, outfile, num_workers
             
             chunk_size = int(len(to_be_computed) / num_workers) + 1
             for idx, start in enumerate(range(0, len(to_be_computed), chunk_size)):
-                chunk = to_be_computed[start:start + chunk_size]
+                chunk = to_be_computed[start : start + chunk_size]
+                
+                print("Making a chunk of size {} for worker {}".format(len(chunk), idx))
 
                 # Then add to the pool
-                future = pool.schedule(check_if_zs_isotopic_to_mirror_list, args=(chunk, outfile, lock, idx, timeout))
-                # future.add_done_callback(std_callback)
+                future = pool.schedule(check_if_zs_isotopic_to_mirror_list, args=(chunk, outfile, lock, idx, timeout, timed_out_file))
+                future.add_done_callback(std_callback)
+                print("Computation for worker {} started.".format(idx))
     
     print('[INFO] Finished.\n Total time taken: %s minutes ' % ((time.time() - start_time)/60)) 
     sys.stdout.flush()
@@ -304,7 +354,7 @@ if __name__ == "__main__":
     print("[INFO] Starting the computation.")
     sys.stdout.flush()
     # Changed to list computation in the end.
-    check_if_zs_isotopic_to_mirror_parallel(left_to_be_computed, csv_outpath, num_workers, timeout)
+    check_if_zs_isotopic_to_mirror_parallel(left_to_be_computed, csv_outpath, num_workers, timeout=timeout, timed_out_file=csv_timed_out)
 
     ####
     # Print number of knots timed out:
