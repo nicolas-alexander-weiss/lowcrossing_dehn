@@ -261,7 +261,7 @@ if __name__ == "__main__":
 
     # File for the timeouts:
     csv_timed_out = "timed_out_knots_5min.csv"
-    if not os.path.isfile(csv_outpath):
+    if not os.path.isfile(csv_timed_out):
         # Create the heading if file doesn't exist yet.
         with open(csv_timed_out, "w") as outfile:
             writer = csv.DictWriter(outfile, ["knot"])
@@ -304,7 +304,7 @@ if __name__ == "__main__":
     print("[INFO] Starting the computation.")
     sys.stdout.flush()
     # Changed to list computation in the end.
-    check_if_zs_isotopic_to_mirror_list(left_to_be_computed, csv_outpath, timeout=60)
+    check_if_zs_isotopic_to_mirror_parallel(left_to_be_computed, csv_outpath, num_workers, timeout)
 
     ####
     # Print number of knots timed out:
