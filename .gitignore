@@ -1,3 +1,6 @@
+# Ignore the Log Data of the parallel computation for mirrors
+"Equal 0-surgeries/parallel computations/mirrors/log"
+
 # Ignore the burton knot data!
 burton_knots/
 
