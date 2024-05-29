@@ -222,7 +222,7 @@ def check_if_zs_isotopic_to_mirror_list(knots, outfile, lock=None, worker_idx=-1
         
 
 def check_if_zs_isotopic_to_mirror(knot, outfile, lock=None, infofile=None):
-    """ Checks if the the zero-surgery (sz) has an orientation reversing symmetry.
+    """ Checks if the the zero-surgery (zs) has an orientation reversing symmetry.
     (I.e. the symmetry group is amphichiral.)
     
     Outputs the result to a file.
@@ -301,7 +301,14 @@ if __name__ == "__main__":
     # File of knots to compute:
     csv_inpath = "timed_out_knots_1min.csv"
     # File for outputs:
-    csv_outpath = "results_sz_isotopic_to_mirror.csv"
+    csv_outpath = "results_zs_isotopic_to_mirror.csv"
+
+    ######################################################
+    # SPECIFY IF JUST PROVIDING THE LIST OF UNCLEAR KNOTS
+    just_print_unclear_knots = True
+    #################################################
+
+
 
     if not os.path.isfile(csv_outpath):
         # Create the heading if file doesn't exist yet.
@@ -343,12 +350,26 @@ if __name__ == "__main__":
         reader = csv.DictReader(infile, ["knot"])
         for row in reader:
             timed_out.append(row["knot"])
+    
 
     # Left to be computed
-    left_to_be_computed = [k for k in knots if (k not in already_computed) and (k not in timed_out)]
+    left_to_be_computed =  set(knots).difference(set(already_computed)).difference(set(set(timed_out)))    # [k for k in knots if (k not in already_computed) and (k not in timed_out)]
     print("[INFO] {} knots left to be computed.".format(len(left_to_be_computed)))
 
-    #####
+    ###############################
+    if just_print_unclear_knots:
+        unclear_knots = set(knots).difference(set(already_computed))
+
+        print("Writing all unclear knots (# = {}) to 'unclear_knots.csv'.".format(len(unclear_knots)))
+        with open("unclear_knots.csv", "w") as unclear_knots_file:
+            unclear_knots_file.write("knot\n")
+            for k in unclear_knots:
+                unclear_knots_file.write("{}\n".format(k))
+        
+        exit(0)
+
+
+    ##########################
 
     # start computation
     print("[INFO] Starting the computation.")
